@@ -1,0 +1,87 @@
+{
+  "name": "qt_servitor",
+  "displayName": "qt servitor",
+  "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:qt.launchDesigner"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration":[
+      {
+        "title": "qt_servitor",
+        "properties": {
+          "qt.QtCreatorPath":{
+              "type": "string",
+              "default": "",
+              "description": "The absolute path of qtcreator.exe, e.g.: D:/ProgramData/Qt/Qt5.12.12/Tools/QtCreator/bin/qtcreator.exe "
+          },
+          "qt.sdkPath":{
+            "type": "string",
+            "default": "",
+            "description": "The absolute path of sdk, e.g.: D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64"
+          },
+          "qt.qtnatvis":{
+            "type": "string",
+            "default": "",
+            "description": "The absolute path of qt5.natvis.xml"
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "qt.launchDesigner",
+        "title": "Lauch Designer",
+        "category": "Qt"
+      },
+      {
+        "command": "qt.launchQML",
+        "title": "Lauch QML",
+        "category": "Qt"
+      }
+    ],
+    "languages": [
+			{
+				"id": "css",
+				"extensions": [
+					".qss"
+				]
+			},
+			{
+				"id": "xml",
+				"extensions": [
+					".ui",
+					".qrc"
+				]
+			}
+		]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.82.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "eslint": "^8.47.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.6",
+    "@vscode/test-electron": "^2.3.4"
+  }
+}
