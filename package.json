@@ -21,7 +21,7 @@
           "qt.QtCreatorPath":{
               "type": "string",
               "default": "",
-              "description": "The absolute path of qtcreator.exe, e.g.: D:/ProgramData/Qt/Qt5.12.12/Tools/QtCreator/bin/qtcreator.exe "
+              "description": "The absolute path of qtcreator, e.g.: D:/ProgramData/Qt/Qt5.12.12/Tools/QtCreator/"
           },
           "qt.sdkPath":{
             "type": "string",
@@ -32,6 +32,11 @@
             "type": "string",
             "default": "",
             "description": "The absolute path of qt5.natvis.xml"
+          },
+          "qt.installPath":{
+            "type":"string",
+            "default": "",
+            "description": "The absolute path of qt install, e.g.: D:/ProgramData/Qt/Qt5.12.12"
           }
         }
       }

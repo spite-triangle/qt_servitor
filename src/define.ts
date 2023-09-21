@@ -6,13 +6,14 @@ enum TOOLS{
     QT_CREATOR = 4
 }
 
-enum CONFIG{
-    QtCreator = 'qt.QtCreatorPath',
-    sdk = 'qt.sdkPath',
-    qtnatvis = 'qt.qtnatvis'
+enum PROPERTIES{
+    QT_CREATOR = 'qt.QtCreatorPath',
+    SDK = 'qt.sdkPath',
+    QT_NATVIS = 'qt.qtnatvis',
+    INSTALL_PATH = 'qt.installPath'
 }
 
 export {
     TOOLS,
-    CONFIG
+    PROPERTIES 
 }

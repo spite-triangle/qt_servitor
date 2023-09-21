@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 
 import { ToolLauncher } from './launchTools';
-import { TOOLS, CONFIG } from './define';
+import { TOOLS} from './define';
 import {Logger} from './log'
 
 
@@ -36,7 +36,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 		if (files.length > 0) {
 			try {
-				await new ToolLauncher(TOOLS.DESIGNER).launchWithFile(files);
+				let launcher =  new ToolLauncher();
+				await launcher.init(TOOLS.DESIGNER);
+				await launcher.launchWithFile(files);
 			} catch (error) {
 				if(error instanceof Error) vscode.window.showErrorMessage(`error launching Qt Designer: ${error.message}`);
 			}
@@ -49,7 +51,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 		if (files.length > 0) {
 			try {
-				await new ToolLauncher(TOOLS.QT_CREATOR).launchWithFile(files);
+				let launcher =  new ToolLauncher();
+				await launcher.init(TOOLS.QT_CREATOR);
+				await launcher.launchWithFile(files);
 			} catch (error) {
 				if(error instanceof Error) vscode.window.showErrorMessage(`error launching Qt QML: ${error.message}`);
 			}
