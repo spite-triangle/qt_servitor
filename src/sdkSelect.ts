@@ -21,6 +21,7 @@ class SdkSelector{
         let strSdkRoot = path.join(this.m_strInstall, folderName);
 
         const quickPick = vscode.window.createQuickPick();
+        quickPick.placeholder = "Select Qt sdk version";
 		quickPick.items = this.getOptions(strSdkRoot).map( item => {
             return {label:item};
         } );
@@ -54,6 +55,8 @@ class SdkSelector{
             // 根据文件路径获取文件信息
             const stats = fs.statSync(filepath);
             if(stats.isDirectory()){
+                // 过滤文件夹
+                if(filename.toLowerCase() == 'src') continue;
                 lstOptions.push(filename);
             }
         }

@@ -1,92 +1,208 @@
 {
-  "name": "qt_servitor",
-  "displayName": "qt servitor",
-  "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.70.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onCommand:qt.launchDesigner"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "configuration":[
-      {
-        "title": "qt_servitor",
-        "properties": {
-          "qt.QtCreatorPath":{
-              "type": "string",
-              "default": "",
-              "description": "The absolute path of qtcreator, e.g.: D:/ProgramData/Qt/Qt5.12.12/Tools/QtCreator/"
-          },
-          "qt.sdkPath":{
-            "type": "string",
-            "default": "",
-            "description": "The absolute path of sdk, e.g.: D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64"
-          },
-          "qt.qtnatvis":{
-            "type": "string",
-            "default": "",
-            "description": "The absolute path of qt5.natvis.xml"
-          },
-          "qt.installPath":{
-            "type":"string",
-            "default": "",
-            "description": "The absolute path of qt install, e.g.: D:/ProgramData/Qt/Qt5.12.12"
-          }
-        }
-      }
+    "name": "qt_servitor",
+    "displayName": "Qt Servitor",
+    "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
+    "version": "0.0.1",
+    "preview": true,
+    "publisher": "triangle",
+    "author": {
+		"name": "trinagle",
+        "url": "https://space.bilibili.com/27206875?spm_id_from=333.1007.0.0"
+	},
+    "engines": {
+        "vscode": "^1.70.0"
+    },
+	"license": "LGPL-3.0-only",
+	"keywords": [
+		"qt",
+		"tools",
+		"c++"
+	],
+    "capabilities": {
+		"virtualWorkspaces": {
+			"supported": false,
+			"description": "Qt servitor doesn't support remote repositories."
+		}
+	},
+    "categories": [
+        "Other"
     ],
-    "commands": [
-      {
-        "command": "qt.launchDesigner",
-        "title": "Lauch Designer",
-        "category": "Qt"
-      },
-      {
-        "command": "qt.launchQML",
-        "title": "Lauch QML",
-        "category": "Qt"
-      }
+    "activationEvents": [
+        "onCommand:qt.launchDesigner",
+        "onCommand:qt.launchQtCreator",
+        "onCommand:qt.launchAssistant",
+        "onCommand:qt.launchLinguist",
+        "onCommand:qt.createTemplate",
+        "onCommand:qt.updateSdk",
+        "onCommand:qt.updateConfigure"
     ],
-    "languages": [
-			{
-				"id": "css",
-				"extensions": [
-					".qss"
-				]
-			},
-			{
-				"id": "xml",
-				"extensions": [
-					".ui",
-					".qrc"
-				]
-			}
-		]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.82.0",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "16.x",
-    "@typescript-eslint/eslint-plugin": "^6.4.1",
-    "@typescript-eslint/parser": "^6.4.1",
-    "eslint": "^8.47.0",
-    "glob": "^10.3.3",
-    "mocha": "^10.2.0",
-    "typescript": "^5.1.6",
-    "@vscode/test-electron": "^2.3.4"
-  }
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": [
+            {
+                "title": "qt servitor",
+                "properties": {
+                    "qt.qtCreatorPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The absolute path of qtcreator, e.g.: D:/ProgramData/Qt/Qt5.12.12/Tools/QtCreator/"
+                    },
+                    "qt.sdkPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The absolute path of sdk, e.g.: D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64"
+                    },
+                    "qt.qtnatvis": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The absolute path of qt5.natvis.xml"
+                    },
+                    "qt.installPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The absolute path of qt install, e.g.: D:/ProgramData/Qt/Qt5.12.12"
+                    },
+                    "qt.includePath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The absolute path of qt kit include, e.g.: D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64/include"
+                    }
+                }
+            }
+        ],
+        "commands": [
+            {
+                "command": "qt.launchDesigner",
+                "title": "Lauch Designer",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.launchQtCreator",
+                "title": "Lauch Qt Creator",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.launchAssistant",
+                "title": "Lauch Assistant",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.launchLinguist",
+                "title": "Launch Linguist",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.createTemplate",
+                "title": "Create Qt Moudle",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.updateSdk",
+                "title": "Select Qt Sdk",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.updateConfigure",
+                "title": "Update Kits Configure",
+                "category": "Qt"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "qt.launchDesigner",
+                    "when": "resourceExtname == .ui"
+                },
+                {
+                    "command": "qt.launchQtCreator",
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro"
+                },
+                {
+                    "command": "qt.launchLinguist",
+                    "when": "resourceExtname == .ts"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "qt.launchDesigner",
+                    "when": "resourceExtname == .ui",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.launchQtCreator",
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.launchLinguist",
+                    "when": "resourceExtname == .ts",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.createTemplate",
+                    "group": "qtservitor@1"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "qt.launchDesigner",
+                    "when": "resourceExtname == .ui",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.launchLinguist",
+                    "when": "resourceExtname == .ts",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.launchQtCreator",
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.createTemplate",
+                    "group": "qtservitor@1"
+                }
+            ]
+        },
+        "languages": [
+            {
+                "id": "css",
+                "extensions": [
+                    ".qss"
+                ]
+            },
+            {
+                "id": "xml",
+                "extensions": [
+                    ".ui",
+                    ".qrc"
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.1",
+        "@types/node": "16.x",
+        "@types/vscode": "^1.82.0",
+        "@typescript-eslint/eslint-plugin": "^6.4.1",
+        "@typescript-eslint/parser": "^6.4.1",
+        "@vscode/test-electron": "^2.3.4",
+        "eslint": "^8.47.0",
+        "glob": "^10.3.3",
+        "mocha": "^10.2.0",
+        "typescript": "^5.1.6"
+    },
+    "dependencies": {
+        "comment-json": "^4.2.3",
+        "iconv-lite": "^0.6.3"
+    }
 }
