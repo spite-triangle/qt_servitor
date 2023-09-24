@@ -75,7 +75,7 @@ class TemplateCreator {
 
             // 检测是否已经有同名文件存在
             if(this.checkTargeFileExist(enType, inputBox.value) == true){
-                Logger.WARN("Please change this file name." + inputBox.value +" has existed in current dir", true);
+                Logger.WARN("Please change this file name." + inputBox.value +" already exists in current dir", true);
                 return;
             }
 
@@ -90,6 +90,7 @@ class TemplateCreator {
 
     private async createTargetFiles(enType: TEMPLATE, strName: string){
         let lstTemplates = this.getTemplateFiles(enType);
+
 
         for(var file of lstTemplates){
             // 读取文件
@@ -113,8 +114,13 @@ class TemplateCreator {
     }
 
     private checkTargeFileExist(enType: TEMPLATE, strName: string){
-        for(var strExt of gMapTemplateExt.get(enType) as string[]){
-            if(fs.existsSync(path.join(this.m_strDir, strName, strExt)) == true) return true;
+        let lstExt = gMapTemplateExt.get(enType);
+        if(lstExt == undefined ) return;
+
+        for(var strExt of lstExt){
+            if(fs.existsSync(path.join(this.m_strDir, strName + strExt)) == false) continue;
+            Logger.WARN("The name already exist. " + strName);
+            return true;
         }
         return false;
     }

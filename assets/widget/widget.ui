@@ -2,7 +2,7 @@
  <author/>
  <comment/>
  <exportmacro/>
- <class>Widget</class>
+ <class>PLACEHOLDER</class>
  <widget class="QWidget" name="PLACEHOLDER">
   <property name="geometry">
    <rect>

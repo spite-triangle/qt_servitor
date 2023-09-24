@@ -2,7 +2,7 @@
 #include "ui_PLACEHOLDER.h"
 
 PLACEHOLDER::PLACEHOLDER(QWidget *parent) :
-    QPLACEHOLDER(parent),
+    QMainWindow(parent),
     ui(new Ui::PLACEHOLDER)
 {
     ui->setupUi(this);
