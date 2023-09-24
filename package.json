@@ -1,29 +1,34 @@
 {
-    "name": "qt_servitor",
+    "name": "qtservitor",
     "displayName": "Qt Servitor",
     "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
     "version": "0.0.1",
     "preview": true,
-    "publisher": "triangle",
+    "publisher": "TriangleOxO",
+    "icon": "image/qt.ico",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/spite-triangle/qt_servitor.git"
+    },
     "author": {
-		"name": "trinagle",
+        "name": "trinagle",
         "url": "https://space.bilibili.com/27206875?spm_id_from=333.1007.0.0"
-	},
+    },
     "engines": {
         "vscode": "^1.70.0"
     },
-	"license": "LGPL-3.0-only",
-	"keywords": [
-		"qt",
-		"tools",
-		"c++"
-	],
+    "license": "LGPL-3.0-only",
+    "keywords": [
+        "qt",
+        "tools",
+        "c++"
+    ],
     "capabilities": {
-		"virtualWorkspaces": {
-			"supported": false,
-			"description": "Qt servitor doesn't support remote repositories."
-		}
-	},
+        "virtualWorkspaces": {
+            "supported": false,
+            "description": "Qt servitor doesn't support remote repositories."
+        }
+    },
     "categories": [
         "Other"
     ],
@@ -192,7 +197,7 @@
     "devDependencies": {
         "@types/mocha": "^10.0.1",
         "@types/node": "16.x",
-        "@types/vscode": "^1.82.0",
+        "@types/vscode": "^1.70.0",
         "@typescript-eslint/eslint-plugin": "^6.4.1",
         "@typescript-eslint/parser": "^6.4.1",
         "@vscode/test-electron": "^2.3.4",
