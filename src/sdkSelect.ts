@@ -17,8 +17,18 @@ class SdkSelector{
     async selectSdk(){
         if(fs.existsSync(this.m_strInstall) == false) throw Error ('Pleas check install path : ' + this.m_strInstall);
 
-        let folderName = path.basename(this.m_strInstall).substring(2);
-        let strSdkRoot = path.join(this.m_strInstall, folderName);
+        // FIXME - 修改为查询
+        let lstFolderNames = this.getSubFolderName(this.m_strInstall);
+        let strTarget = "";
+        let reg = /^[0-9]\.[0-9]{1,3}\.[0-9]{1,3}$/i; // 例如 5.9.10
+        for(var name of lstFolderNames){
+            if(reg.test(name) == false)  continue;
+            strTarget = name;
+            break;
+        }
+        if(strTarget == "")throw Error ("Not found sdk folder. e.g.: 5.0.10");
+
+        let strSdkRoot = path.join(this.m_strInstall, strTarget);
 
         const quickPick = vscode.window.createQuickPick();
         quickPick.placeholder = "Select Qt sdk version";
@@ -44,23 +54,29 @@ class SdkSelector{
     }
 
     private getOptions(strSdkRoot:string){
+        let lstNames = this.getSubFolderName(strSdkRoot);
 
-        let lstOptions: string[] = [];
-        // 根据文件路径读取文件，返回一个文件列表
-        const files = fs.readdirSync(strSdkRoot);
         // 遍历读取到的文件列表
-        for (let filename of files) {
-            // path.join得到当前文件的绝对路径
-            const filepath = path.join(strSdkRoot, filename);
-            // 根据文件路径获取文件信息
-            const stats = fs.statSync(filepath);
-            if(stats.isDirectory()){
-                // 过滤文件夹
+        let lstOptions : string[] = [];
+        for (let filename of lstNames) {
                 if(filename.toLowerCase() == 'src') continue;
-                lstOptions.push(filename);
+                lstOptions.push(filename); 
+            }
+        return lstOptions;
+    }
+
+    private getSubFolderName(strDir:string){
+        let lstSubFolder : string [] = [];
+
+        const lstfiles = fs.readdirSync(strDir);
+        for(let file of lstfiles){
+            const filePath = path.join(strDir, file);
+            const stats = fs.statSync(filePath);
+            if(stats.isDirectory() == true){
+                lstSubFolder.push(file)
             }
         }
-        return lstOptions;
+        return lstSubFolder;
     }
 }
 

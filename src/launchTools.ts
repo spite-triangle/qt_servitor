@@ -47,9 +47,9 @@ gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
         
         // 查找软件
         for(var strName of lstNames){
-            strPath = path.join(strPath, strName);
-            if( fs.existsSync(strPath) == true) {
-                this.m_strExe = strPath;
+            let strToolPath = path.join(strPath, strName);
+            if( fs.existsSync(strToolPath) == true) {
+                this.m_strExe = strToolPath;
                 return ;
             }
         }

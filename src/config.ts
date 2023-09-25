@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as jsonc from 'comment-json';
+import * as process from 'process'
+
 import { PROPERTIES} from './define';
 import { SdkSelector } from './sdkSelect';
 import path = require('path');
@@ -53,6 +55,7 @@ interface Browse {
     databaseFilename?: string;
 }
 
+// TODO - 删除旧配置
 // c_cpp_properties.json
 class CppPropertiesTool{
 
@@ -70,21 +73,24 @@ class CppPropertiesTool{
         
         if(config.configurations.length <= 0) return;
 
-        // 创建配置项
+        // 创建配置项  D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64/include
         let strQtInclude = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.QT_INCLUDE);
+        let strInstallPath = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.INSTALL_PATH);
         
         let lstInclude = config.configurations[0].includePath;
-        if(lstInclude == undefined){
-            lstInclude = [strQtInclude];
-        }else{
+        if(lstInclude != undefined){
             // 查询是否已经设置
-            for(var item of lstInclude){
-                if( path.normalize(item) == strQtInclude) return;
-            } 
-
-            // 添加配置
-            lstInclude.push(strQtInclude);
+            lstInclude = lstInclude.filter(value=>{
+                return (path.normalize(value).indexOf(strInstallPath) == 0)? false : true;
+            });
+        }else{
+            lstInclude = [];
         }
+
+        
+        // 添加配置
+        lstInclude.push(strQtInclude);
+        config.configurations[0].includePath = lstInclude;
 
         // 保存配置
         this.saveJson(strPath,config);
@@ -163,40 +169,35 @@ class LaunchConfigTool{
             return false;
         } 
 
+        let strInstallPath = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.INSTALL_PATH);
+
+        // 环境变量分割符
+        let strSplit = "";
+        if (process.platform == "win32") {
+            strSplit = ";"; 
+        }else if(process.platform == "linux"){
+            strSplit = ":";
+        }
+
+        // 查询设置
         for(var item of env){
             if(item.name.toLowerCase() != 'path') continue;
             
-            // 查看环境变量是否已经设置了
-            let strValue = path.normalize(item.value);
-            let index = strValue.indexOf(strSdkBin);
-            if(index < 0 ) continue;
-           
-            // 检测 strSdkBin 是否只是配置中路径中部分
-            if(strValue.length > strSdkBin.length){
-                let lstCh = ": ;";
+            let lstPaths = item.value.split(strSplit);
+            for(var strItem of lstPaths){
+                let strNorm = path.normalize(strItem);
 
-                // 左侧的符号
-                let chLeft = (index - 1) < 0? " " : strValue[index - 1] ;
-                
-                // 右侧的符号
-                let chRight = " ";
-                index = index + strSdkBin.length;
-                while (index < strValue.length) {
-                    let ch = strValue[index];
+                // 已经设置了
+                if(strNorm == strSdkBin) return false;
 
-                    // 过滤分隔符 
-                    if('\\/'.indexOf(ch) < 0){
-                        chRight = ch;
-                        break;
-                    }
-
-                    // 挪动指针
-                    ++index;
+                // 存在路径是 strInstallPath 的子目录，认为就是旧的设置
+                // 正常人应该不会在这个路径下安装其他软件
+                if(strNorm.indexOf(strInstallPath) == 0){
+                    // 修改
+                    item.value = item.value.replace(strItem, strSdkBin);
+                    return true;
                 }
-
-                if(lstCh.indexOf(chLeft) < 0 || lstCh.indexOf(chRight) < 0) continue;
             }
-            return false;
         } 
 
         env.push( {name: "path",value: strSdkBin} );
@@ -294,15 +295,17 @@ class ConfigAssist {
         let setting = vscode.workspace.getConfiguration().get(enType, "");
 
         switch (enType) {
-            case PROPERTIES.SDK: return await this.getSdkPath(setting);
-            case PROPERTIES.QT_CREATOR: return await this.getQtCreator(setting);
-            case PROPERTIES.QT_INCLUDE: return await this.getIncludePath(setting);
-            case PROPERTIES.QT_NATVIS: return this.getNatvis(setting);
+            case PROPERTIES.SDK: setting = await this.getSdkPath(setting); break;
+            case PROPERTIES.QT_CREATOR: setting =  await this.getQtCreator(setting); break;
+            case PROPERTIES.QT_INCLUDE: setting = await this.getIncludePath(setting); break;
+            case PROPERTIES.QT_NATVIS: setting = await this.getNatvis(setting); break;
             case PROPERTIES.INSTALL_PATH : 
                 if(setting == "") throw Error ('The path of Qt install does not exist. please configure qt.installPath in settings.');
-                return setting;
+                break;
             default: return "";
         }
+
+        return path.normalize(setting);
     }
 
     private async getNatvis(str:string): Promise<string> {
