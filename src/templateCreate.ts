@@ -39,6 +39,13 @@ const gMapTemplateExt : Map<TEMPLATE, string[]> = new Map([
 ]);
 
 
+const gLstParentObject : Array<string> = [
+    "QObject",
+    "QWidget",
+    "QDialog",
+    "QMainWindow"
+];
+
 
 class TemplateCreator {
     private m_strDir : string; // 创建文件的文件夹
@@ -58,10 +65,16 @@ class TemplateCreator {
         this.m_strExtensionDir = strExtensionDir;
     }
 
-    create(enType: TEMPLATE){
+    async create(enType: TEMPLATE){
         if(gMapTemplateFolder.has(enType) == false){
             Logger.WARN("Not found target template.");
             return;
+        }
+
+        // 获取父对象类型
+        let strObj = "";
+        if(enType == TEMPLATE.QOBJECT){
+            strObj = await this.getParentObject();
         }
 
         // 用户输入名称
@@ -80,7 +93,7 @@ class TemplateCreator {
             }
 
             // 创建目标文件
-            this.createTargetFiles(enType, inputBox.value);
+            this.createTargetFiles(enType, inputBox.value, strObj);
 
             inputBox.hide();
         });
@@ -88,7 +101,7 @@ class TemplateCreator {
         inputBox.show();
     }
 
-    private async createTargetFiles(enType: TEMPLATE, strName: string){
+    private async createTargetFiles(enType: TEMPLATE, strName: string, strObj: string = ""){
         let lstTemplates = this.getTemplateFiles(enType);
 
 
@@ -101,7 +114,24 @@ class TemplateCreator {
             strFile = strFile.replaceAll("PLACEHOLDER", strName);
 
             // 替换头文件
-            if(strExt == '.h') strFile = strFile.replaceAll("PLACE#HOLDER", strName.toUpperCase());
+            if(strExt == '.h') {
+                // 替换保护宏
+                strFile = strFile.replaceAll("PLACE#HOLDER", strName.toUpperCase());
+
+                if(strObj != ""){
+                    // 替换继承类型
+                    strFile = strFile.replaceAll("OBJECTHOLDER", strObj);
+                }
+            };
+
+            // 替换父对象类型
+            if(strObj != ""){
+                if(strObj == "QObject"){
+                    strFile = strFile.replaceAll("PARENTHOLDER", "QObject");
+                }else{
+                    strFile = strFile.replaceAll("PARENTHOLDER", "QWidget");
+                }
+            }
             
             // 保存路径
             let strPath : string = path.join(this.m_strDir, strName + strExt);
@@ -111,6 +141,31 @@ class TemplateCreator {
                 if(err) Logger.ERROR(err.message);
             });
         }
+    }
+
+    private async getParentObject(){
+
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.placeholder = "Select Parent Object";
+		quickPick.items = Array.from(gLstParentObject).map( item => {
+            return {label:item};
+        } );
+
+        quickPick.onDidHide(() => {
+                quickPick.dispose()
+            });
+        quickPick.show();
+        
+		return await new Promise<string>(resolve => {
+            quickPick.onDidAccept( () => {
+                if(quickPick.selectedItems.length >= 0){
+                    resolve(quickPick.selectedItems[0].label);
+                }else{
+                    resolve("");
+                }
+                quickPick.hide();
+            });
+        }) 
     }
 
     private checkTargeFileExist(enType: TEMPLATE, strName: string){

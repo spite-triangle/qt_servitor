@@ -1,13 +1,16 @@
 #ifndef PLACE#HOLDER_H
 #define PLACE#HOLDER_H
 
-#include <QObject>
+#include <OBJECTHOLDER>
 
-class PLACEHOLDER
+class PLACEHOLDER : public OBJECTHOLDER
 {
     Q_OBJECT
 public:
-    PLACEHOLDER();
+    explicit PLACEHOLDER(PARENTHOLDER *parent = nullptr);
+
+signals:
+
 };
 
 #endif // PLACE#HOLDER_H

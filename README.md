@@ -42,7 +42,7 @@
 - Qt Mainwindow 
 - Qt Widget
 - Qt Dialog
-- Qt Object
+- Qt Object : 支持 QObject, QWidget, QDialog, QMainWindow 类型的创建
 - Qt Designer Form : 创建 `.ui` 文件
 - Qt Resource File : 创建 `.qrc` 文件
 - Qt QML File : 创建 `.qml` 文件

@@ -2,6 +2,11 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.0.5] 2023-10-29 14:04:21
+
+### 修改 
+- `Qt Object` 支持 QObject, QWidget, QDialog, QMainWindow 类型的创建
+
 ## [0.0.3] - 2023-09-25 20:50
 
 ### 修复
