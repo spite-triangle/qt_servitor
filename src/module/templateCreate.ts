@@ -4,8 +4,8 @@ import path = require('path');
 
 import * as iconv from 'iconv-lite'
 
-import {Logger} from './log'
-import {TEMPLATE} from './define'
+import {Logger} from '../common/log'
+import {TEMPLATE} from '../common/define'
 
 
 const gMapTemplateType : Map<string, TEMPLATE> = new Map([
@@ -15,27 +15,31 @@ const gMapTemplateType : Map<string, TEMPLATE> = new Map([
     ["Qt Object", TEMPLATE.QOBJECT],
     ["Qt Designer Form", TEMPLATE.UI],
     ["Qt Resource File", TEMPLATE.RESOURCE],
-    ["Qt QML File", TEMPLATE.QML],
+    ["Quick View", TEMPLATE.QUICK_VIEW],
+    ["Quick Widget", TEMPLATE.QUICK_WIDGET],
+    ["Quick Application", TEMPLATE.QUICK_APP]
 ]);
 
 const gMapTemplateFolder : Map<TEMPLATE, string> = new Map([
     [TEMPLATE.MAIN_WINDOW,"assets/mainwindow"],
     [TEMPLATE.DIALOG,"assets/dialog"],
-    [TEMPLATE.QML,"assets/qml"],
     [TEMPLATE.QOBJECT,"assets/object"],
     [TEMPLATE.RESOURCE,"assets/resource"],
     [TEMPLATE.UI,"assets/ui"],
     [TEMPLATE.WIDGET,"assets/widget"],
+    [TEMPLATE.QUICK_APP,"assets/quickapp"],
+    [TEMPLATE.QUICK_VIEW,"assets/quickview"],
+    [TEMPLATE.QUICK_WIDGET,"assets/quickwidget"],
 ]);
 
 const gMapTemplateExt : Map<TEMPLATE, string[]> = new Map([
     [TEMPLATE.MAIN_WINDOW,[".ui",".h",".cpp"]],
     [TEMPLATE.DIALOG,[".ui",".h",".cpp"]],
-    [TEMPLATE.QML,[".qml"]],
     [TEMPLATE.QOBJECT,[".h",".cpp"]],
     [TEMPLATE.RESOURCE,[".qrc"]],
     [TEMPLATE.UI,[".ui"]],
     [TEMPLATE.WIDGET,[".ui",".h","cpp"]],
+    [TEMPLATE.QUICK_APP,[".qrc",".cpp",".qml"]]
 ]);
 
 

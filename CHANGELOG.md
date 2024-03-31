@@ -2,6 +2,19 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.0.6] 2024-03-31 11:32:17
+
+### 修改
+- `qt.xxxx` 配置支持 `workspace/.vscode/settings.json` 局部配置。且局部配置优先全局配置
+- 添加 `.qrc` 文件打开支持
+- 添加 `windeployqt.exe` 支持
+- 实现 SDK 终端创建
+- 添加单个 `.qml` 预览功能
+- 添加 `qmlpreview.exe` 预览功能 
+
+### 修复
+- 修改 `.qrc` 模板文件
+
 ## [0.0.5] 2023-10-29 14:04:21
 
 ### 修改 

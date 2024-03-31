@@ -1,0 +1,33 @@
+![alt|c,30](image/qt.ico)
+
+# 简介
+
+`Qt Servitor` 插件的开发目的是在 vscode 中辅助 Qt 项目的构建，插件功能包括
+- 自动配置 `launch.json` 文件，便于 Qt 程序的运行与调试；
+- 自动配置 `c_cpp_properties.json`，使得 [c/c++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) 插件能正确识别 Qt 相关头文件
+- Qt sdk 版本切换；
+- Qt 模块自动生成；
+- `assistant.exe`、`designer.exe`、`linguist.exe` 与 `qtcreator.exe` 的快捷启动。
+
+# 声明
+
+> 该插件只支持 `windows` 与 `linux` 操作，且未对 `linux` 进行过测试 （目前没有测试环境，有时间再测了）。
+
+参考项目：
+- [C/C++ Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+- [Qt visual Studio Tools](https://github.com/qt-labs/vstools)
+- [Qt Tools](https://marketplace.visualstudio.com/items?itemName=tonka3000.qtvsctools)
+
+
+# 支持功能
+
+- [配置](./chapter/configure.md)
+- [工具集](./chapter/tools.md)
+- [QML 支持](./chapter/qmltool.md)
+
+# 后续目标
+
+- `QML` 实时预览
+- `QML` 语法错误检测支持
+
+

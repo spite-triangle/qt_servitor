@@ -2,10 +2,10 @@
     "name": "qtservitor",
     "displayName": "Qt Servitor",
     "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
-    "version": "0.0.5",
+    "version": "0.1.0",
     "preview": true,
     "publisher": "TriangleOxO",
-    "icon": "image/qt.ico",
+    "icon": "icon/qt.ico",
     "repository": {
         "type": "git",
         "url": "https://github.com/spite-triangle/qt_servitor.git"
@@ -50,12 +50,12 @@
                     "qt.qtCreatorPath": {
                         "type": "string",
                         "default": "",
-                        "description": "The absolute path of qtcreator, e.g.: D:/ProgramData/Qt/Qt5.12.12/Tools/QtCreator/"
+                        "description": "The absolute path of qtcreator, e.g.: D:/ProgramData/Qt/Tools/QtCreator/"
                     },
                     "qt.sdkPath": {
                         "type": "string",
                         "default": "",
-                        "description": "The absolute path of sdk, e.g.: D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64"
+                        "description": "The absolute path of sdk, e.g.: D:/ProgramData/Qt/5.15.2/msvc2017_64"
                     },
                     "qt.qtnatvis": {
                         "type": "string",
@@ -65,12 +65,12 @@
                     "qt.installPath": {
                         "type": "string",
                         "default": "",
-                        "description": "The absolute path of qt install, e.g.: D:/ProgramData/Qt/Qt5.12.12"
+                        "description": "The absolute path of qt install, e.g.: D:/ProgramData/Qt/Qt5.15.2"
                     },
                     "qt.includePath": {
                         "type": "string",
                         "default": "",
-                        "description": "The absolute path of qt kit include, e.g.: D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64/include"
+                        "description": "The absolute path of qt kit include, e.g.: D:/ProgramData/Qt/5.15.2/msvc2017_64/include"
                     }
                 }
             }
@@ -79,6 +79,26 @@
             {
                 "command": "qt.launchDesigner",
                 "title": "Lauch Designer",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.windeployqt",
+                "title": "Deploy Qt In Windows",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.qmleasing",
+                "title": "Qml Easing Curver Editor",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.qmlPreviewExe",
+                "title": "Preview Qml Executable",
+                "category": "Qt"
+            },
+            {
+                "command": "qt.qmlPreviewFile",
+                "title": "Preview Current Qml File",
                 "category": "Qt"
             },
             {
@@ -110,6 +130,11 @@
                 "command": "qt.updateConfigure",
                 "title": "Update Kits Configure",
                 "category": "Qt"
+            },
+            {
+                "command": "qt.launchTerminal",
+                "title": "Launch Qt SDK Terminal",
+                "category": "Qt"
             }
         ],
         "menus": {
@@ -120,11 +145,23 @@
                 },
                 {
                     "command": "qt.launchQtCreator",
-                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro"
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc"
                 },
                 {
                     "command": "qt.launchLinguist",
                     "when": "resourceExtname == .ts"
+                },
+                {
+                    "command": "qt.qmlPreviewFile",
+                    "when": "resourceExtname == .qml"
+                },
+                {
+                    "command": "qt.qmlPreviewExe",
+                    "when": "false"
+                },
+                {
+                    "command": "qt.windeployqt",
+                    "when": "false"
                 }
             ],
             "explorer/context": [
@@ -135,12 +172,27 @@
                 },
                 {
                     "command": "qt.launchQtCreator",
-                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro",
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc",
                     "group": "qtservitor@1"
                 },
                 {
                     "command": "qt.launchLinguist",
                     "when": "resourceExtname == .ts",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.qmlPreviewFile",
+                    "when": "resourceExtname == .qml",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.qmlPreviewExe",
+                    "when": "resourceExtname == .exe || resourceExtname == .out",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.windeployqt",
+                    "when": "isWindows == true && resourceExtname == .exe",
                     "group": "qtservitor@1"
                 },
                 {
@@ -161,7 +213,12 @@
                 },
                 {
                     "command": "qt.launchQtCreator",
-                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro",
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc",
+                    "group": "qtservitor@1"
+                },
+                {
+                    "command": "qt.qmlPreviewFile",
+                    "when": "resourceExtname == .qml",
                     "group": "qtservitor@1"
                 },
                 {

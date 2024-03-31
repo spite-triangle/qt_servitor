@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { PROPERTIES} from './define';
+import { PROPERTIES} from '../common/define';
 import path = require('path');
 
 
@@ -17,7 +17,6 @@ class SdkSelector{
     async selectSdk(){
         if(fs.existsSync(this.m_strInstall) == false) throw Error ('Pleas check install path : ' + this.m_strInstall);
 
-        // FIXME - 修改为查询
         let lstFolderNames = this.getSubFolderName(this.m_strInstall);
         let strTarget = "";
         let reg = /^[0-9]\.[0-9]{1,3}\.[0-9]{1,3}$/i; // 例如 5.9.10
@@ -26,7 +25,7 @@ class SdkSelector{
             strTarget = name;
             break;
         }
-        if(strTarget == "")throw Error ("Not found sdk folder. e.g.: 5.0.10");
+        if(strTarget == "")throw Error ("Not found sdk folder. e.g.: 5.15.10");
 
         let strSdkRoot = path.join(this.m_strInstall, strTarget);
 

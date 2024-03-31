@@ -4,7 +4,7 @@ import * as jsonc from 'comment-json';
 import * as process from 'process'
 
 import { PROPERTIES} from './define';
-import { SdkSelector } from './sdkSelect';
+import { SdkSelector } from '../module/sdkSelect';
 import path = require('path');
 import { Logger } from './log';
 
@@ -73,7 +73,7 @@ class CppPropertiesTool{
         
         if(config.configurations.length <= 0) return;
 
-        // 创建配置项  D:/ProgramData/Qt/Qt5.12.12/5.12.12/msvc2017_64/include
+        // 创建配置项  D:/ProgramData/Qt/5.15.2/msvc2017_64/include
         let strQtInclude = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.QT_INCLUDE);
         let strInstallPath = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.INSTALL_PATH);
         
@@ -230,8 +230,8 @@ class LaunchConfigTool{
 
 
 class ConfigAssist {
-    private m_strSdkCache :string = ""; // 配置文件更新有延迟，用于缓解延迟
     m_strExtensionDir : string = "";
+    private m_strSdkCache :string = ""; // 配置文件更新有延迟，用于缓解延迟
     private static m_instance : ConfigAssist;
     private constructor() {}
 
@@ -272,16 +272,28 @@ class ConfigAssist {
 
     async updateSdkPath(){
         // 推断 sdk
-        let strInstall = await this.getPropertiesPath(PROPERTIES.INSTALL_PATH) ; 
+        let strInstall = await this.getPropertiesPath(PROPERTIES.INSTALL_PATH);
 
         // 弹窗获取
         let strSdk = await new SdkSelector(strInstall).selectSdk();
 
         // 更新本地设置
-        if(strSdk != "") vscode.workspace.getConfiguration().update(PROPERTIES.SDK, strSdk, vscode.ConfigurationTarget.Global).then((value)=>{
-            // 清空缓存
-            this.m_strSdkCache = "";
-        });
+        if(strSdk != "") {
+            // 默认将配置更新到全局 settings.json 中
+            let settingTarget = vscode.ConfigurationTarget.Global;
+
+            // 检查 workfolder 是否存在 PROPERTIES.SDK 配置。存在则更新到 workfolder 的 settings.json 中
+            let allSettings = vscode.workspace.getConfiguration().inspect(PROPERTIES.INSTALL_PATH);
+            if(allSettings != undefined && allSettings.workspaceValue != ""){
+                settingTarget = vscode.ConfigurationTarget.Workspace;
+            }
+ 
+            // 更新配置
+            vscode.workspace.getConfiguration().update(PROPERTIES.SDK, strSdk, settingTarget).then((value)=>{
+                // 清空缓存
+                this.m_strSdkCache = "";
+            });
+        }
 
         // 更新本地设置有延迟
         this.m_strSdkCache = strSdk;
@@ -291,9 +303,10 @@ class ConfigAssist {
 
     /* 获取工具路径 */
     async getPropertiesPath(enType:PROPERTIES){
-        // 获取配置
+        // 获取 setting.json 中的配置，优先使用 workfolder 中的配置
         let setting = vscode.workspace.getConfiguration().get(enType, "");
 
+        // 将 setting中的配置转换为实际需要的路径 
         switch (enType) {
             case PROPERTIES.SDK: setting = await this.getSdkPath(setting); break;
             case PROPERTIES.QT_CREATOR: setting =  await this.getQtCreator(setting); break;

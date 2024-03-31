@@ -4,28 +4,38 @@ import * as fs from 'fs';
 import { spawn} from 'child_process';
 import * as path from 'path'
 
-import { TOOLS, PROPERTIES} from './define';
-import { ConfigAssist } from './config';
-import {Logger} from './log'
+import { TOOLS, PROPERTIES, TERM_NAME} from '../common/define';
+import { ConfigAssist} from '../common/config';
+import {Logger} from '../common/log'
+import { Terminal } from './terminal';
 
 const gMapNames: Map<TOOLS, string[]> = new Map([
     [TOOLS.NON,[]],
-    [TOOLS.ASSISTANT,["assistant.exe","assistant","assistant-qt5.exe","assistant-qt5","assistant-qt6.exe","assistant-qt6"]],
-    [TOOLS.DESIGNER,["designer.exe","designer","designer-qt5.exe","designer-qt5","designer-qt6.exe", "designer-qt6"]],
     [TOOLS.QT_CREATOR,["qtcreator.exe","qtcreator"]],
     [TOOLS.LINGUIST,["linguist.exe","linguist","linguist-qt5.exe","linguist-qt5","linguist-qt6.exe","linguist-qt6"]],
+    [TOOLS.DESIGNER,["designer.exe","designer","designer-qt5.exe","designer-qt5","designer-qt6.exe", "designer-qt6"]],
+    [TOOLS.ASSISTANT,["assistant.exe","assistant","assistant-qt5.exe","assistant-qt5","assistant-qt6.exe","assistant-qt6"]],
+    [TOOLS.WIN_DEPLOY,["windeployqt.exe"]],
+    [TOOLS.QML_EASING,["qmleasing.exe","qmleasing"]],
+    [TOOLS.QML_PREVIEW,["qmlpreview.exe","qmlpreview"]],
+    [TOOLS.QML_TOOL,["qml.exe","qml"]],
 ]);
 
-const gMapExtentsion : Map<TOOLS, Set<string>> = new Map;
-gMapExtentsion.set(TOOLS.DESIGNER, new Set(['.ui']));
-gMapExtentsion.set(TOOLS.QT_CREATOR, new Set(['.qml','.pro','.ui','.ts']));
-gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
+const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
+    [TOOLS.DESIGNER, new Set(['.ui'])],
+    [TOOLS.LINGUIST, new Set(['.ts'])],
+    [TOOLS.QT_CREATOR, new Set(['.qml','.pro','.ui','.ts','.qrc'])],
+    [TOOLS.WIN_DEPLOY, new Set(['.exe'])],
+    [TOOLS.QML_PREVIEW, new Set(['.exe'])],
+    [TOOLS.QML_TOOL, new Set(['.qml'])],
+]);
 
 
 /* 启动工具 */
  class ToolLauncher{
     private m_enType: TOOLS = TOOLS.NON;
-    private m_strExe: string = "";
+    private m_strExePath: string = "";
+    private m_strExeName: string = "";
 
     async init(enType:TOOLS){
         this.m_enType = enType;        
@@ -34,7 +44,7 @@ gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
         let lstNames = gMapNames.get(enType);
         if(lstNames == undefined) throw new Error('not found tool');
         
-
+        // 获取工具路径
         let strPath = "";
         if(enType == TOOLS.QT_CREATOR){
             strPath = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.QT_CREATOR) ;
@@ -49,7 +59,8 @@ gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
         for(var strName of lstNames){
             let strToolPath = path.join(strPath, strName);
             if( fs.existsSync(strToolPath) == true) {
-                this.m_strExe = strToolPath;
+                this.m_strExePath = strToolPath;
+                this.m_strExeName = strName;
                 return ;
             }
         }
@@ -57,7 +68,8 @@ gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
         throw new Error('Please check the path : ' + strPath);
     }
 
-    public async launchWithFile(lstFiles:string[]){
+    /* 启动程序 */
+    public  launchWithFile(lstFiles:string[]){
         if(lstFiles.length <= 0) {
             Logger.INFO('not found target files about ' +  (gMapNames.get(this.m_enType) as string[]));
             return;
@@ -71,11 +83,18 @@ gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
             return;
         }
 
-        await this.exe(lstGoodFiles);
+        return this.exe(lstGoodFiles);
     }
 
-    public async launch(){
-        await this.exe(undefined); 
+    /* 在终端执行命令 */
+    public launchTerminal(args:string[]){
+        let term = new Terminal(TERM_NAME);
+        term.execCommand(this.m_strExeName, args);
+    }
+
+    /* 直接启动工具 */
+    public launch(){
+        return this.exe(undefined); 
     }
 
     private filteFile(lstFiles : string[]){
@@ -94,10 +113,10 @@ gMapExtentsion.set(TOOLS.LINGUIST, new Set(['.ts']));
         return lstGoods;
     }
 
-    private async exe(lstFiles:string[] | undefined){
-        const designer = spawn(this.m_strExe, lstFiles);
+    private exe(args:string[] | undefined){
+        const designer = spawn(this.m_strExePath, args);
         designer.on('close', (code) => {
-            Logger.instance().info(`qt designer child process exited with code ${code}`);
+            Logger.instance().info(`${this.m_strExePath} exited with code ${code}`);
         });
     }
 }

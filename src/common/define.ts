@@ -1,12 +1,17 @@
+/* 工具 */
 enum TOOLS{
     NON = 0,
-    ASSISTANT = 1,
-    DESIGNER = 2,
-    QML = 3,
-    QT_CREATOR = 4,
-    LINGUIST = 5,
+    ASSISTANT,
+    DESIGNER,
+    QT_CREATOR,
+    LINGUIST,
+    WIN_DEPLOY,
+    QML_PREVIEW,
+    QML_EASING,
+    QML_TOOL
 }
 
+/* settings.json 配置 */
 enum PROPERTIES{
     QT_CREATOR = 'qt.qtCreatorPath',
     SDK = 'qt.sdkPath',
@@ -17,17 +22,21 @@ enum PROPERTIES{
     QT_LINGUIST = 'qt.linguistPath'
 }
 
-
+/* 模板生成资源类型 */
 enum TEMPLATE{
     MAIN_WINDOW = 0,
-    WIDGET = 1,
-    QML = 2,
-    QML2 = 3,
-    RESOURCE = 4,
-    UI = 5,
-    QOBJECT = 6,
-    DIALOG = 7
+    WIDGET,
+    RESOURCE,
+    UI,
+    QOBJECT,
+    DIALOG,
+    QUICK_APP,
+    QUICK_VIEW,
+    QUICK_WIDGET
 }
+
+/* 终端名 */
+export const TERM_NAME = "Qt Servitor"
 
 export {
     TOOLS,
