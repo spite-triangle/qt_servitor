@@ -42,9 +42,9 @@ triangle@LEARN:~$ tree
 
 | 选项               | 必选   | 描述                                                                                                                                                                                              |
 | ------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `qt.installPath`   | **是** | 指定 Qt 的安装位置，例如 `D:/ProgramData/Qt/Qt5.15.2`                                                                                                                                             |
+| `qt.installPath`   | **是** | 指定 Qt 的安装位置，例如 `D:/ProgramData/Qt/`                                                                                                                                                     |
 | `qt.qtCreatorPath` | 否     | 指定 `qtcreator.exe` 的所在路径，例如 `D:/ProgramData/Qt/Tools/QtCreator/`                                                                                                                        |
-| `qt.sdkPath`       | 否     | 指定 Qt 项目所使用的 sdk 版本，例如 `D:/ProgramData/Qt/5.15.2/msvc2017_64`                                                                                                                        |
+| `qt.sdkPath`       | 否     | 指定项目所使用的 SDK 版本，例如 `D:/ProgramData/Qt/5.15.2/msvc2017_64`                                                                                                                            |
 | `qt.qtnatvis`      | 否     | 指定 `qt.natvis.xml` 的路径。该文件来自 [Qt visual Studio Tools](https://github.com/qt-labs/vstools)，可以在原工程项目中[下载](https://github.com/qt-labs/vstools/blob/dev/QtMSBuild/QtMsBuild)。 |
 | `qt.includePath`   | 否     | 指定 Qt 的头文件，例如 `D:/ProgramData/Qt/5.15.2/msvc2017_64/include`                                                                                                                             |
 

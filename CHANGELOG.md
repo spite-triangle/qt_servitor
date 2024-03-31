@@ -2,7 +2,7 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
-## [0.0.6] 2024-03-31 11:32:17
+## [0.1.0] 2024-03-31 11:32:17
 
 ### 修改
 - `qt.xxxx` 配置支持 `workspace/.vscode/settings.json` 局部配置。且局部配置优先全局配置
