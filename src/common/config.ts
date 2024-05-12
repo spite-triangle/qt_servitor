@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as jsonc from 'comment-json';
 import * as process from 'process'
 
-import { PROPERTIES} from './define';
+import { PROPERTIES, VERSION} from './define';
 import { SdkSelector } from '../module/sdkSelect';
 import path = require('path');
 import { Logger } from './log';
@@ -324,8 +324,12 @@ class ConfigAssist {
     private async getNatvis(str:string): Promise<string> {
         if(str != "") return str;
 
-        // 调用本地的
-        return path.join(this.m_strExtensionDir,"assets", "natvis", "qt5.natvis.xml");
+        let version = new SdkSelector( await this.getPropertiesPath(PROPERTIES.INSTALL_PATH)).getSdkVersion();
+        if(version == VERSION.QT_6){
+            return path.join(this.m_strExtensionDir,"assets", "natvis", "qt6.natvis.xml");
+        }else {
+            return path.join(this.m_strExtensionDir,"assets", "natvis", "qt5.natvis.xml");
+        }
     }
 
     private async getIncludePath(str:string): Promise<string>{

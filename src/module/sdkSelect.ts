@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { PROPERTIES} from '../common/define';
 import path = require('path');
+import { VERSION } from '../common/define';
 
 
 
@@ -13,8 +13,26 @@ class SdkSelector{
         this.m_strInstall = strInstall;
     }
 
-    // 获取 skd
-    async selectSdk(){
+    // 获取 qt 版本 
+    getSdkVersion(){
+        let strTarget = this.getSdkFolderName();
+        if(strTarget == "") return VERSION.NONE;
+
+        let versions = strTarget.split('.');
+        if(versions.length <= 0) return VERSION.NONE;
+
+        if(versions[0] == "4"){
+            return VERSION.QT_4;
+        }else if(versions[0] == "5"){
+            return VERSION.QT_5;
+        }else if(versions[0] == "6"){
+            return VERSION.QT_6;
+        }
+        return VERSION.NONE;
+    }
+
+    // 存放 sdk 的文件夹名
+    getSdkFolderName(){
         if(fs.existsSync(this.m_strInstall) == false) throw Error ('Pleas check install path : ' + this.m_strInstall);
 
         let lstFolderNames = this.getSubFolderName(this.m_strInstall);
@@ -25,6 +43,13 @@ class SdkSelector{
             strTarget = name;
             break;
         }
+
+        return strTarget;
+    }
+
+    // 获取 skd
+    async selectSdk(){
+        let strTarget = this.getSdkFolderName();
         if(strTarget == "")throw Error ("Not found sdk folder. e.g.: 5.15.10");
 
         let strSdkRoot = path.join(this.m_strInstall, strTarget);

@@ -25,7 +25,7 @@ const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
     [TOOLS.DESIGNER, new Set(['.ui'])],
     [TOOLS.LINGUIST, new Set(['.ts'])],
     [TOOLS.QT_CREATOR, new Set(['.qml','.pro','.ui','.ts','.qrc'])],
-    [TOOLS.WIN_DEPLOY, new Set(['.exe'])],
+    [TOOLS.WIN_DEPLOY, new Set()],
     [TOOLS.QML_PREVIEW, new Set(['.exe'])],
     [TOOLS.QML_TOOL, new Set(['.qml'])],
 ]);
@@ -100,6 +100,7 @@ const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
     private filteFile(lstFiles : string[]){
         let strTargets = gMapExtentsion.get(this.m_enType);
         if(strTargets == undefined) return [];
+        if(strTargets.size <= 0) return lstFiles;
         
         let lstGoods : string[] = [];
         for(var item of lstFiles){

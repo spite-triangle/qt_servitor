@@ -2,6 +2,12 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.1.2] 2024-05-12 14:49:46
+
+### 修改
+- 增加 `qt6.natvis.xml` 支持
+- 放开 `qmlpreview.exe` 限制
+
 ## [0.1.0] 2024-03-31 11:32:17
 
 ### 修改

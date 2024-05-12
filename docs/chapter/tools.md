@@ -23,14 +23,14 @@
 
 不同的文件会对应不同的启动工具
 
-| 工具              | 支持文件                     |
-| ----------------- | ---------------------------- |
-| `QtCreator.exe`   | `.qml、.pro、.ui、.ts、.qrc` |
-| `linguist.exe`    | `.ts`                        |
-| `windeployqt.exe` | `.exe`                       |
-| `designer.exe`    | `.ui`                        |
-| `qml.exe`         | `.qml`                       |
-| `qmlpreview.exe`  | `.exe`                       |
+| 工具              | 支持文件                                 |
+| ----------------- | ---------------------------------------- |
+| `QtCreator.exe`   | `.qml、.pro、.ui、.ts、.qrc`             |
+| `linguist.exe`    | `.ts`                                    |
+| `windeployqt.exe` | 无限制，但需要是 `.dll` 与 `.exe` 类文件 |
+| `designer.exe`    | `.ui`                                    |
+| `qml.exe`         | `.qml`                                   |
+| `qmlpreview.exe`  | `.exe`                                   |
 
 
 

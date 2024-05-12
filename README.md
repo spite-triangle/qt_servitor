@@ -5,7 +5,8 @@
 - 自动配置 `c_cpp_properties.json`，使得 [c/c++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) 插件能正确识别 Qt 相关头文件
 - Qt sdk 版本切换；
 - Qt 模块自动生成；
-- `assistant.exe`、`designer.exe`、`linguist.exe` 与 `qtcreator.exe` 的快捷启动。
+- `QML` 文件的简单预览（ [qmltools](https://github.com/spite-triangle/qmltools/releases/tag/v1.0.0) 中实时预览工具待集成）
+- `assistant.exe`、`designer.exe`、`linguist.exe` 、`windeployqt.exe`、`qml.exe` 、`qtcreator.exe` 等工具的快捷启动。
 
 # 声明
 
@@ -19,7 +20,7 @@
 
 # 使用
 
-[工具使用文档](https://spite-triangle.github.io/qt_servitor/)
+- [工具使用文档](https://spite-triangle.github.io/qt_servitor/)
 
 # 配置
 

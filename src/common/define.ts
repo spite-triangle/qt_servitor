@@ -35,11 +35,20 @@ enum TEMPLATE{
     QUICK_WIDGET
 }
 
+/* qt 版本 */
+enum VERSION{
+    NONE,
+    QT_4,
+    QT_5,
+    QT_6
+}
+
 /* 终端名 */
 export const TERM_NAME = "Qt Servitor"
 
 export {
     TOOLS,
     PROPERTIES,
-    TEMPLATE
+    TEMPLATE,
+    VERSION
 }
