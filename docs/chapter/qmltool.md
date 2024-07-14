@@ -32,7 +32,7 @@
 
 ![lint](../git/lint.gif)
 
-> [!tip]
+> **TIP** </br>
 > 由于底层实现限制，语法检测可能没有自动刷。可以 `ctrl + s` 保存当前文档，实现强制刷新。
 
 ## 自动补全
@@ -66,13 +66,14 @@
 
 ## 实时预览
 
-> [!note]
-> 若要实时预览目标可执行文件，目标文件必须开启了 `debug` 模式。可以通过宏 `QT_DECLARATIVE_DEBUG、QT_QML_DEBUG` 开启，详情见 [Debugging QML Applications](https://doc.qt.io/qt-6/qtquick-debugging.html)
 
 ![preview live|c,90](../git/previewlive.gif)
 
 
 在 `c_cpp_properties.json` 中配置好 `qt.targetFile` 目标程序，便能对 `qml` 进行实时预览。
+
+> **NOTE** </br>
+> 若要实时预览目标可执行文件，目标文件必须开启了 `debug` 模式。可以通过宏 `QT_DECLARATIVE_DEBUG、QT_QML_DEBUG` 开启，详情见 [Debugging QML Applications](https://doc.qt.io/qt-6/qtquick-debugging.html)
 
 ![preview ](../image/previewConfig.png)
 
