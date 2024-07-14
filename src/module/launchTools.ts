@@ -105,7 +105,7 @@ const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
         }
         
         let args: string[] = [
-            "-v",
+            // "-v",
             `-s ${socketFile}`,
             `-i ${interval}`,
             `--focus=${file}`

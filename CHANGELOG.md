@@ -2,6 +2,14 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.3.1] 2024-07-14 17:48:53
+## 修复
+- 修复 qmlpreview 的 `--search` 参数配置
+- 增加 `No QML engines found.` 异常处理提示
+
+## 修改
+- 关闭日志文件输出
+
 ## [0.3.0] 2024-07-14 16:43:23
 
 ## 增加

@@ -73,7 +73,8 @@
 在 `c_cpp_properties.json` 中配置好 `qt.targetFile` 目标程序，便能对 `qml` 进行实时预览。
 
 > **NOTE** </br>
-> 若要实时预览目标可执行文件，目标文件必须开启了 `debug` 模式。可以通过宏 `QT_DECLARATIVE_DEBUG、QT_QML_DEBUG` 开启，详情见 [Debugging QML Applications](https://doc.qt.io/qt-6/qtquick-debugging.html)
+> 1. 若要实时预览目标可执行文件，目标文件必须开启了 `debug` 模式。可以通过宏 `QT_DECLARATIVE_DEBUG、QT_QML_DEBUG` 开启，详情见 [Debugging QML Applications](https://doc.qt.io/qt-6/qtquick-debugging.html)
+> 2. 在使用预览工具前，**需要保证工程项目能正常编译、目标可执行文件可运行。**
 
 ![preview ](../image/previewConfig.png)
 

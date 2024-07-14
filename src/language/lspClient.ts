@@ -148,7 +148,7 @@ export class LspClient{
         
         let args : string[] =[
         	`-p ${port}`,
-        	"-v",
+        	// "-v",
             `--sdk=${sdk}`,
             `--typeDescription=${qmlTypeDesc}`
         ];
