@@ -21,15 +21,15 @@ const gMapTemplateType : Map<string, TEMPLATE> = new Map([
 ]);
 
 const gMapTemplateFolder : Map<TEMPLATE, string> = new Map([
-    [TEMPLATE.MAIN_WINDOW,"assets/mainwindow"],
-    [TEMPLATE.DIALOG,"assets/dialog"],
-    [TEMPLATE.QOBJECT,"assets/object"],
-    [TEMPLATE.RESOURCE,"assets/resource"],
-    [TEMPLATE.UI,"assets/ui"],
-    [TEMPLATE.WIDGET,"assets/widget"],
-    [TEMPLATE.QUICK_APP,"assets/quickapp"],
-    [TEMPLATE.QUICK_VIEW,"assets/quickview"],
-    [TEMPLATE.QUICK_WIDGET,"assets/quickwidget"],
+    [TEMPLATE.MAIN_WINDOW,"template/assets/mainwindow"],
+    [TEMPLATE.DIALOG,"template/assets/dialog"],
+    [TEMPLATE.QOBJECT,"template/assets/object"],
+    [TEMPLATE.RESOURCE,"template/assets/resource"],
+    [TEMPLATE.UI,"template/assets/ui"],
+    [TEMPLATE.WIDGET,"template/assets/widget"],
+    [TEMPLATE.QUICK_APP,"template/assets/quickapp"],
+    [TEMPLATE.QUICK_VIEW,"template/assets/quickview"],
+    [TEMPLATE.QUICK_WIDGET,"template/assets/quickwidget"],
 ]);
 
 const gMapTemplateExt : Map<TEMPLATE, string[]> = new Map([

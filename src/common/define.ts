@@ -19,7 +19,12 @@ enum PROPERTIES{
     QT_INCLUDE =  'qt.includePath',
     INSTALL_PATH = 'qt.installPath',
     QT_ASSISTANT = "qt.assistantPath",
-    QT_LINGUIST = 'qt.linguistPath'
+    QT_LINGUIST = 'qt.linguistPath',
+    PREVIEW_INTERVAL = 'qt.previewInterval',
+    PREVIEW_TOOL = 'qt.previewToolPath',
+    QML_LSP_TOOL = 'qt.qmllspToolPath',
+    QML_TYPE_DESC = 'qt.qmlTypeDescriptionFolder',
+
 }
 
 /* 模板生成资源类型 */

@@ -7,6 +7,8 @@ import { PROPERTIES, VERSION} from './define';
 import { SdkSelector } from '../module/sdkSelect';
 import path = require('path');
 import { Logger } from './log';
+import { integer } from 'vscode-languageclient';
+import { OxO } from './tool';
 
 interface EnvironmentItem {
     name:string;
@@ -17,9 +19,12 @@ interface EnvironmentItem {
 interface ConfigurationJson {
     configurations: Configuration[];
     env?: { [key: string]: string | string[] };
+    qt?: QtConfiguration;
     version: number;
     enableConfigurationSquiggles?: boolean;
 }
+
+
 
 interface Configuration {
     name: string;
@@ -55,11 +60,21 @@ interface Browse {
     databaseFilename?: string;
 }
 
-// TODO - 删除旧配置
+interface QtConfiguration{
+    targetFile?: string;
+    projectRoot?: string;
+    targetFolder? : string[];
+    importPath?: string[];
+    qml2ImportPath?: string[];
+    qrc?:string[];
+    sourceFolder?:string[]
+}
+
+
 // c_cpp_properties.json
 class CppPropertiesTool{
 
-    async update(strPath: string){
+    async updateSdkConfig(strPath: string){
 
         // 是否存在配置文件夹
         if(fs.existsSync(strPath) == false) return;
@@ -87,13 +102,90 @@ class CppPropertiesTool{
             lstInclude = [];
         }
 
-        
         // 添加配置
         lstInclude.push(strQtInclude);
         config.configurations[0].includePath = lstInclude;
 
         // 保存配置
         this.saveJson(strPath,config);
+    }
+
+    getQtConfiguration(strPath: string)  {
+        let config :ConfigurationJson = this.parseJson(strPath) as any;
+        if(config == null){
+            Logger.WARN("Failed to parse c_cpp_properties.json.");
+            return undefined;
+        }
+
+        let qtConfig = config.qt;
+        if(qtConfig == undefined) return undefined;
+
+
+        qtConfig.importPath = this.resolveFiles(qtConfig.importPath);
+        qtConfig.qml2ImportPath = this.resolveFiles(qtConfig.qml2ImportPath);
+        qtConfig.targetFile = this.resolveFile(qtConfig.targetFile);
+        qtConfig.qrc = this.resolveFiles(qtConfig.qrc);
+        qtConfig.sourceFolder = this.resolveFiles(qtConfig.sourceFolder);
+        qtConfig.targetFolder = this.resolveFiles(qtConfig.targetFolder);
+        qtConfig.projectRoot = this.resolveFile(qtConfig.projectRoot);
+
+        // 目标程序所在目录添加到 targetFolder 中
+        if(qtConfig != undefined && qtConfig.targetFile != undefined){
+            let targetFolder = path.dirname(qtConfig.targetFile); 
+            if(qtConfig.targetFolder == undefined){
+                qtConfig.targetFolder = [targetFolder]; 
+            }else{
+                qtConfig.targetFolder.push(targetFolder);
+            }
+        }
+
+        // 将当前 workspace 当作 project
+        if(qtConfig != undefined && qtConfig.projectRoot == undefined){
+            let folders = vscode.workspace.workspaceFolders;
+            if(folders == undefined || folders.length < 0) return undefined;
+            
+            let workspace = OxO.getOuterMostWorkspaceFolder(folders[0]);
+            qtConfig.projectRoot = workspace.uri.fsPath.toString();
+        }
+
+        // 将 projectRoot 添加到 sourceFolder 中
+        if(qtConfig != undefined && qtConfig.projectRoot != undefined){
+            if(qtConfig.sourceFolder == undefined){
+                qtConfig.sourceFolder = [qtConfig.projectRoot]; 
+            }else{
+                qtConfig.sourceFolder.push(qtConfig.projectRoot);
+            }
+        }
+        return qtConfig;
+    }
+
+    /* 转换相对路径 */
+    private resolveFile(file: string | undefined){
+        if(file == undefined) return undefined;
+
+        let workspace = vscode.workspace.workspaceFolders;
+        if(workspace == undefined || workspace.length <= 0) return undefined;  
+        
+        let filePath = path.resolve(workspace[0].uri.fsPath, file); 
+        if(fs.existsSync(filePath) == false){
+            Logger.WARN(`please check c_cpp_properties.json configuration. ${filePath} dosen't exist.`, true);
+            return undefined;
+        }
+        return filePath;
+    }
+
+    private resolveFiles(files: string[] | undefined){
+        if(files == undefined) return undefined;
+
+        let out : string[] = [];
+        for(let file of files){
+            let res = this.resolveFile(file);
+            if(res == undefined) continue;
+            out.push(res);
+        }
+        
+        if(out.length <= 0) return undefined;
+        return out;    
     }
 
     // 将 c_cpp_properties.json 转为 ConfigurationJson
@@ -224,7 +316,6 @@ class LaunchConfigTool{
 
         return true;
     }
-
 }
 
 
@@ -247,13 +338,19 @@ class ConfigAssist {
         let workspace = vscode.workspace.workspaceFolders;
         if(workspace == undefined || workspace.length <= 0) return;
         let strPath = path.join(workspace[0].uri.fsPath, ".vscode", "c_cpp_properties.json");
-        await new CppPropertiesTool().update(strPath);
+        await new CppPropertiesTool().updateSdkConfig(strPath);
     }
 
+    // qt 配置
+    static qtConfigueration(){
+        let workspace = vscode.workspace.workspaceFolders;
+        if(workspace == undefined || workspace.length <= 0) return;
+        let strPath = path.join(workspace[0].uri.fsPath, ".vscode", "c_cpp_properties.json");
+        return new CppPropertiesTool().getQtConfiguration(strPath);
+    }
 
     // 更新 Launch.json 中设置
     async updateLaunch(){
-
         // 获取 launch.json 配置
         const config = vscode.workspace.getConfiguration('launch');
 
@@ -263,7 +360,7 @@ class ConfigAssist {
         for(var configuration of lstConfigurations){
             await launchTool.update(configuration);
         }
-        
+
         // 更烈 Launch.json 配置
         if(launchTool.bChange == true){
             config.update('configurations', lstConfigurations);
@@ -287,7 +384,7 @@ class ConfigAssist {
             if(allSettings != undefined && allSettings.workspaceValue != ""){
                 settingTarget = vscode.ConfigurationTarget.Workspace;
             }
- 
+
             // 更新配置
             vscode.workspace.getConfiguration().update(PROPERTIES.SDK, strSdk, settingTarget).then((value)=>{
                 // 清空缓存
@@ -297,7 +394,6 @@ class ConfigAssist {
 
         // 更新本地设置有延迟
         this.m_strSdkCache = strSdk;
-
         return strSdk;
     }
 
@@ -312,6 +408,9 @@ class ConfigAssist {
             case PROPERTIES.QT_CREATOR: setting =  await this.getQtCreator(setting); break;
             case PROPERTIES.QT_INCLUDE: setting = await this.getIncludePath(setting); break;
             case PROPERTIES.QT_NATVIS: setting = await this.getNatvis(setting); break;
+            case PROPERTIES.QML_LSP_TOOL: setting = this.getQmllspTool(setting) ; break;
+            case PROPERTIES.PREVIEW_TOOL: setting = this.getPreviewTool(setting) ; break;
+            case PROPERTIES.QML_TYPE_DESC: setting = this.getQmlTypeDesc(setting) ; break;
             case PROPERTIES.INSTALL_PATH : 
                 if(setting == "") throw Error ('The path of Qt install does not exist. please configure qt.installPath in settings.');
                 break;
@@ -319,6 +418,23 @@ class ConfigAssist {
         }
 
         return path.normalize(setting);
+    }
+
+    private getQmllspTool(str:string){
+        if(fs.existsSync(str) == true) return str;
+        let plat = process.platform == "win32"? "windows" : "linux";
+        return path.join(this.m_strExtensionDir, "tools", plat,"qmllsp.exe");
+    }
+
+    private getPreviewTool(str:string){
+        if(fs.existsSync(str) == true) return str;
+        let plat = process.platform == "win32"? "windows" : "linux";
+        return path.join(this.m_strExtensionDir, "tools", plat,"qmlpreview.exe");
+    }
+
+    private getQmlTypeDesc(str:string){
+        if(fs.existsSync(str) == true) return str;
+        return path.join(this.m_strExtensionDir, "assets", "qml-type-descriptions");
     }
 
     private async getNatvis(str:string): Promise<string> {
@@ -357,9 +473,9 @@ class ConfigAssist {
 
         return path.join(strInstall, "Tools", "QtCreator", "bin") ;
     }
-
 }
 
 export{
-    ConfigAssist
+    ConfigAssist,
+    QtConfiguration
 }

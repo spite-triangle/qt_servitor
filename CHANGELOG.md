@@ -2,6 +2,12 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.3.0] 2024-07-14 16:43:23
+
+## 增加
+- QML 实时预览功能
+- QML 语言特性支持
+
 ## [0.1.2] 2024-05-12 14:49:46
 
 ### 修改

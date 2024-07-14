@@ -1,0 +1,12 @@
+ERROR [Socket.cpp:188] 客户端fd: 188, IP：127.0.0.1, 端口:63199
+
+DEBUG [lspServer.cpp:212] Failed to recv head information.
+ERROR [lspServer.cpp:168] Failed to recv.
+ERROR [Socket.cpp:188] 客户端fd: 176, IP：127.0.0.1, 端口:50382
+
+DEBUG [lspServer.cpp:212] Failed to recv head information.
+ERROR [lspServer.cpp:168] Failed to recv.
+ERROR [Socket.cpp:188] 客户端fd: 640, IP：127.0.0.1, 端口:63780
+
+DEBUG [lspServer.cpp:212] Failed to recv head information.
+ERROR [lspServer.cpp:168] Failed to recv.

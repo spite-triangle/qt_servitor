@@ -22,28 +22,33 @@ class Terminal{
     }
 
     /* 执行一条命令命令 */
-    public async execLine(line:string){
-        let term = await this.getTerminal();
+    public async execLine(line:string, newTerm: boolean = false){
+        let term = await this.getTerminal(newTerm);
 
         term.sendText(line);
         term.show(false);
     }
 
-    public execCommand(command:string, args:string[]){
+    public execCommand(command:string, args:string[], newTerm: boolean = false){
         let line = command;
         for(let arg of args){
             line = line + " " + arg;
         }
 
-        this.execLine(line);
+        this.execLine(line, newTerm);
     }
 
     /* 获取 terminal */
-    private async getTerminal(){
+    private async getTerminal(newTerm: boolean){
         let term = Terminal.searchTerminals(this.m_name);
 
         // 没有创建
         if(term == null){
+            term = await Terminal.createTerminal(this.m_name);
+        }else if(newTerm == true){
+            // ctrl + c 信号
+            term.sendText('\x03\r\x03\r');
+            term.dispose();
             term = await Terminal.createTerminal(this.m_name);
         }
         return term;

@@ -2,7 +2,7 @@
     "name": "qtservitor",
     "displayName": "Qt Servitor",
     "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
-    "version": "0.1.2",
+    "version": "0.3.0",
     "preview": true,
     "publisher": "TriangleOxO",
     "icon": "icon/qt.ico",
@@ -21,7 +21,8 @@
     "keywords": [
         "qt",
         "tools",
-        "c++"
+        "c++",
+        "qml"
     ],
     "capabilities": {
         "virtualWorkspaces": {
@@ -71,6 +72,26 @@
                         "type": "string",
                         "default": "",
                         "description": "The absolute path of qt kit include, e.g.: D:/ProgramData/Qt/5.15.2/msvc2017_64/include"
+                    },
+                    "qt.previewInterval": {
+                        "type": "integer",
+                        "default": "2000",
+                        "description": "Interval (ms) to refresh QML preview when file changed, [1000 ms, 10,000 ms]."
+                    },
+                    "qt.previewToolPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "`qmlpreview` executable file path. (qmltools)[https://github.com/spite-triangle/qmltools/releases/]"
+                    },
+                    "qt.qmllspToolPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "`qmllsp` executable file path. (qmltools)[https://github.com/spite-triangle/qmltools/releases/]"
+                    },
+                    "qt.qmlTypeDescriptionFolder": {
+                        "type": "string",
+                        "default": "",
+                        "description": "`qml-type-descriptions` folder path. [Qt Creator](https://github.com/qt-creator/qt-creator/tree/master/share/qtcreator/qml-type-descriptions)"
                     }
                 }
             }
@@ -92,13 +113,13 @@
                 "category": "Qt"
             },
             {
-                "command": "qt.qmlPreviewExe",
-                "title": "Preview Qml Executable",
+                "command": "qt.qmlPreviewFile",
+                "title": "Preview Current Qml File",
                 "category": "Qt"
             },
             {
-                "command": "qt.qmlPreviewFile",
-                "title": "Preview Current Qml File",
+                "command": "qt.qmlPeekFile",
+                "title": "Peek Current Qml File",
                 "category": "Qt"
             },
             {
@@ -145,19 +166,19 @@
                 },
                 {
                     "command": "qt.launchQtCreator",
-                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc"
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc || resourceExtname == .qss"
                 },
                 {
                     "command": "qt.launchLinguist",
                     "when": "resourceExtname == .ts"
                 },
                 {
-                    "command": "qt.qmlPreviewFile",
+                    "command": "qt.qmlPeekFile",
                     "when": "resourceExtname == .qml"
                 },
                 {
-                    "command": "qt.qmlPreviewExe",
-                    "when": "false"
+                    "command": "qt.qmlPreviewFile",
+                    "when": "resourceExtname == .qml"
                 },
                 {
                     "command": "qt.windeployqt",
@@ -172,7 +193,7 @@
                 },
                 {
                     "command": "qt.launchQtCreator",
-                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc",
+                    "when": "resourceExtname == .qml || resourceExtname == .ui || resourceExtname == .ts || resourceExtname == .pro || resourceExtname == .qrc || resourceExtname == .qss",
                     "group": "qtservitor@1"
                 },
                 {
@@ -181,13 +202,13 @@
                     "group": "qtservitor@1"
                 },
                 {
-                    "command": "qt.qmlPreviewFile",
+                    "command": "qt.qmlPeekFile",
                     "when": "resourceExtname == .qml",
                     "group": "qtservitor@1"
                 },
                 {
-                    "command": "qt.qmlPreviewExe",
-                    "when": "resourceExtname == .exe || resourceExtname == .out",
+                    "command": "qt.qmlPreviewFile",
+                    "when": "resourceExtname == .qml",
                     "group": "qtservitor@1"
                 },
                 {
@@ -217,7 +238,7 @@
                     "group": "qtservitor@1"
                 },
                 {
-                    "command": "qt.qmlPreviewFile",
+                    "command": "qt.qmlPeekFile",
                     "when": "resourceExtname == .qml",
                     "group": "qtservitor@1"
                 },
@@ -240,6 +261,58 @@
                     ".ui",
                     ".qrc"
                 ]
+            },
+            {
+                "id": "qml",
+                "extensions": [
+                    ".qml"
+                ],
+                "configuration": "./assets/languages/qml.json"
+            },
+            {
+                "id": "qmldir",
+                "filenames": [
+                    "qmldir"
+                ],
+                "configuration": "./assets/languages/qmldir.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "qml",
+                "scopeName": "source.qml",
+                "path": "./assets/syntaxes/qml.tmLanguage.json"
+            },
+            {
+                "language": "qmldir",
+                "scopeName": "source.qmldir",
+                "path": "./assets/syntaxes/qmldir.tmLanguage.json"
+            },
+            {
+                "scopeName": "markdown.codeblock.qml",
+                "path": "./assets/syntaxes/qml.codeblock.json",
+                "injectTo": [
+                    "text.html.markdown"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.qml": "qml"
+                }
+            },
+            {
+                "scopeName": "markdown.codeblock.qmldir",
+                "path": "./assets/syntaxes/qmldir.codeblock.json",
+                "injectTo": [
+                    "text.html.markdown"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.qmldir": "qmldir"
+                }
+            }
+        ],
+        "jsonValidation": [
+            {
+                "fileMatch": "c_cpp_properties.json",
+                "url": "./assets/config/c_cpp_properties.schema.json"
             }
         ]
     },
@@ -252,8 +325,10 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
+        "@types/get-port": "^4.2.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "16.x",
+        "@types/uuid": "^10.0.0",
         "@types/vscode": "^1.70.0",
         "@typescript-eslint/eslint-plugin": "^6.4.1",
         "@typescript-eslint/parser": "^6.4.1",
@@ -265,6 +340,9 @@
     },
     "dependencies": {
         "comment-json": "^4.2.3",
-        "iconv-lite": "^0.6.3"
+        "get-port": "^4.1.0",
+        "iconv-lite": "^0.6.3",
+        "uuid": "^10.0.0",
+        "vscode-languageclient": "^9.0.1"
     }
 }

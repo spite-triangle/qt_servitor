@@ -10,6 +10,8 @@ import { CreateTemplate } from './module/templateCreate';
 import { ConfigAssist } from './common/config';
 import { Terminal } from './module/terminal';
 import { OxO } from './common/tool';
+import { LspClient } from './language/lspClient';
+import path = require('path');
 
 
 // This method is called when your extension is activated
@@ -24,6 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// 初始化 Logger
 	Logger.instance().init(LOG_LEVEL.ERROR, vscode.window.createOutputChannel("Qt Servitor"));
 	Logger.INFO("launch");
+	ConfigAssist.instance().m_strExtensionDir = context.extensionPath;
 
 	let disposable = vscode.commands.registerCommand('qt.launchDesigner', async (uri: vscode.Uri, selectedFiles: any) => {
 		let files = OxO.getForcusPath(uri, selectedFiles);
@@ -100,7 +103,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(disposable);
 
-	disposable = vscode.commands.registerCommand('qt.qmlPreviewFile', async (uri: vscode.Uri, selectedFiles: any) => {
+	disposable = vscode.commands.registerCommand('qt.qmlPeekFile', async (uri: vscode.Uri, selectedFiles: any) => {
 		let files = OxO.getForcusPath(uri, selectedFiles);
 		if(files.length <= 0) return;
 		try {
@@ -108,18 +111,19 @@ export function activate(context: vscode.ExtensionContext) {
 			await launcher.init(TOOLS.QML_TOOL);
 			launcher.launchTerminal([files[0]]);
 		} catch (error) {
-			if(error instanceof Error) vscode.window.showErrorMessage(`Error Preview Current Qml: ${error.message}`);
+			if(error instanceof Error) vscode.window.showErrorMessage(`Error Peek Current Qml: ${error.message}`);
 		}
 	});
 	context.subscriptions.push(disposable);
 
-	disposable = vscode.commands.registerCommand('qt.qmlPreviewExe', async (uri: vscode.Uri, selectedFiles: any) => {
+	disposable = vscode.commands.registerCommand('qt.qmlPreviewFile', async (uri: vscode.Uri, selectedFiles: any) => {
 		try {
+			let filePath = uri.fsPath.toString();
 			let launcher =  new ToolLauncher();
-			await launcher.init(TOOLS.QML_PREVIEW);
-			launcher.launchTerminal([uri.fsPath,"-qmljsdebugger=host:localhost,port:2444"]);
+			await launcher.initPreview(path.basename(filePath));
+			await launcher.launchPreview(filePath);
 		} catch (error) {
-			if(error instanceof Error) vscode.window.showErrorMessage(`Error Preview Qml Exe: ${error.message}`);
+			if(error instanceof Error) vscode.window.showErrorMessage(`Error Preview Current Qml: ${error.message}`);
 		}
 	});
 	context.subscriptions.push(disposable);
@@ -140,6 +144,13 @@ export function activate(context: vscode.ExtensionContext) {
 		
 		try {
 			await ConfigAssist.instance().updateSdkPath();
+			
+			// 通知 lsp 当前 sdk 修改
+			let folders = vscode.workspace.workspaceFolders;
+			if(folders == undefined) return;
+			let target = OxO.getOuterMostWorkspaceFolder(folders[0]);
+			LspClient.didChangeConfigurationParams(target.uri.toString());
+
 		} catch (error) {
 			if(error instanceof Error) vscode.window.showErrorMessage(`Error Update Sdk Path: ${error.message}`);
 		}
@@ -150,7 +161,7 @@ export function activate(context: vscode.ExtensionContext) {
 	disposable = vscode.commands.registerCommand('qt.updateConfigure', async (uri: vscode.Uri, selectedFiles: any) => {
 		
 		try {
-			ConfigAssist.instance().m_strExtensionDir = context.extensionPath;
+			
 			await ConfigAssist.instance().updateLaunch();
 			await ConfigAssist.instance().updateCppProperties();
 		} catch (error) {
@@ -169,6 +180,44 @@ export function activate(context: vscode.ExtensionContext) {
 		
 	});
 	context.subscriptions.push(disposable);
+
+	// TODO - 目前只支持 windows 平台
+	if(process.platform != "win32") return;
+
+	// lsp 服务
+	disposable = vscode.workspace.onDidOpenTextDocument(document =>{
+		let uri = document.uri;
+
+		if (document.languageId !== 'qml' || uri.scheme !== "file") return;
+		if(LspClient.contains(uri.toString()) == true) return;
+
+		let folder = vscode.workspace.getWorkspaceFolder(uri);
+		if(folder == undefined) return;
+		
+		LspClient.createClient(folder);
+	});
+	context.subscriptions.push(disposable);
+
+	disposable = vscode.workspace.onDidChangeWorkspaceFolders((event)=> {
+		// 关闭退出的 workspace
+		for (const folder of event.removed) {
+			LspClient.remove(folder.uri.toString());
+		}
+	});
+	context.subscriptions.push(disposable);
+
+	// 查看是否有 qml 文件
+	for(let doc of vscode.workspace.textDocuments){
+
+		// 校验
+		if (doc.languageId !== 'qml' || doc.uri.scheme !== "file") return;
+	
+		let folder = vscode.workspace.getWorkspaceFolder(doc.uri);
+		if(folder == undefined) return;
+		
+		LspClient.createClient(folder);
+		return;
+	}
 }
 
 // This method is called when your extension is deactivated
