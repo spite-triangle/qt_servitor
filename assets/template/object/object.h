@@ -9,8 +9,6 @@ class PLACEHOLDER : public OBJECTHOLDER
 public:
     explicit PLACEHOLDER(PARENTHOLDER *parent = nullptr);
 
-signals:
-
 };
 
 #endif // PLACE#HOLDER_H

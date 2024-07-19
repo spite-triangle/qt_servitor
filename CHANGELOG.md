@@ -2,6 +2,16 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.3.1] 2024-07-19 22:45:28
+## 修复
+- 修复创建 `QObject` 模块问题
+- 修复创建 `ui_xxx.h` 引用问题
+- 修复 `create qt module` 无法使用问题
+
+## 增加
+- 增加 `qt.fileNameUpperCase` 文件名首字母大小写控制
+- 增加 `Custom Object` 自定义类创建
+
 ## [0.3.1] 2024-07-14 17:48:53
 ## 修复
 - 修复 qmlpreview 的 `--search` 参数配置

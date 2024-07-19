@@ -1,5 +1,5 @@
 #include "PLACEHOLDER.h"
-#include "ui_PLACEHOLDER.h"
+#include "PLACEUIHOLDER.h"
 
 PLACEHOLDER::PLACEHOLDER(QWidget *parent) :
     QWidget(parent),

@@ -32,6 +32,7 @@ triangle@LEARN:~$ tree
 | `qt.previewToolPath`          | 否     | 配置 `qmlpreview` 工具路径                                                                                                                                                                        |
 | `qt.qmllspToolPath`           | 否     | 配置 `qmllsp` 语言服务路径                                                                                                                                                                        |
 | `qt.qmlTypeDescriptionFolder` | 否     | `qml-type-descriptions` 资源文件夹路径，[Qt Creator](https://github.com/qt-creator/qt-creator/tree/master/share/qtcreator/qml-type-descriptions)                                                  |
+| `qt.fileNameUpperCase`        | 否     | 通过 `create qt module` 创建的文件的文件名是否大写                                                                                                                                                |
 
 
 ## 优先级

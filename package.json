@@ -2,7 +2,7 @@
     "name": "qtservitor",
     "displayName": "Qt Servitor",
     "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "preview": true,
     "publisher": "TriangleOxO",
     "icon": "icon/qt.ico",
@@ -92,6 +92,11 @@
                         "type": "string",
                         "default": "",
                         "description": "`qml-type-descriptions` folder path. [Qt Creator](https://github.com/qt-creator/qt-creator/tree/master/share/qtcreator/qml-type-descriptions)"
+                    },
+                    "qt.fileNameUpperCase": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "the first letter of file name is capital. This file is created by `Create Qt Moudle`."
                     }
                 }
             }

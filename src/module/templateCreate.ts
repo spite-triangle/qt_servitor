@@ -21,15 +21,15 @@ const gMapTemplateType : Map<string, TEMPLATE> = new Map([
 ]);
 
 const gMapTemplateFolder : Map<TEMPLATE, string> = new Map([
-    [TEMPLATE.MAIN_WINDOW,"template/assets/mainwindow"],
-    [TEMPLATE.DIALOG,"template/assets/dialog"],
-    [TEMPLATE.QOBJECT,"template/assets/object"],
-    [TEMPLATE.RESOURCE,"template/assets/resource"],
-    [TEMPLATE.UI,"template/assets/ui"],
-    [TEMPLATE.WIDGET,"template/assets/widget"],
-    [TEMPLATE.QUICK_APP,"template/assets/quickapp"],
-    [TEMPLATE.QUICK_VIEW,"template/assets/quickview"],
-    [TEMPLATE.QUICK_WIDGET,"template/assets/quickwidget"],
+    [TEMPLATE.MAIN_WINDOW,"assets/template/mainwindow"],
+    [TEMPLATE.DIALOG,"assets/template/dialog"],
+    [TEMPLATE.QOBJECT,"assets/template/object"],
+    [TEMPLATE.RESOURCE,"assets/template/resource"],
+    [TEMPLATE.UI,"assets/template/ui"],
+    [TEMPLATE.WIDGET,"assets/template/widget"],
+    [TEMPLATE.QUICK_APP,"assets/template/quickapp"],
+    [TEMPLATE.QUICK_VIEW,"assets/template/quickview"],
+    [TEMPLATE.QUICK_WIDGET,"assets/template/quickwidget"],
 ]);
 
 const gMapTemplateExt : Map<TEMPLATE, string[]> = new Map([
@@ -47,7 +47,8 @@ const gLstParentObject : Array<string> = [
     "QObject",
     "QWidget",
     "QDialog",
-    "QMainWindow"
+    "QMainWindow",
+    "Custom Object"
 ];
 
 
@@ -77,8 +78,18 @@ class TemplateCreator {
 
         // 获取父对象类型
         let strObj = "";
+        let strParent = "";
         if(enType == TEMPLATE.QOBJECT){
             strObj = await this.getParentObject();
+
+            if(strObj == "Custom Object" ){
+                strObj = await this.getObjectName();
+                strParent = "QObject";
+            }else if(strObj ==  "QObject"){
+                strParent = "QObject";
+            }else{
+                strParent = "QWidget";
+            }
         }
 
         // 用户输入名称
@@ -97,7 +108,7 @@ class TemplateCreator {
             }
 
             // 创建目标文件
-            this.createTargetFiles(enType, inputBox.value, strObj);
+            this.createTargetFiles(enType, inputBox.value, strObj, strParent);
 
             inputBox.hide();
         });
@@ -105,7 +116,7 @@ class TemplateCreator {
         inputBox.show();
     }
 
-    private async createTargetFiles(enType: TEMPLATE, strName: string, strObj: string = ""){
+    private async createTargetFiles(enType: TEMPLATE, strName: string, strObj: string = "", strParent: string = ""){
         let lstTemplates = this.getTemplateFiles(enType);
 
 
@@ -117,28 +128,30 @@ class TemplateCreator {
             // 替换
             strFile = strFile.replaceAll("PLACEHOLDER", strName);
 
-            // 替换头文件
-            if(strExt == '.h') {
-                // 替换保护宏
-                strFile = strFile.replaceAll("PLACE#HOLDER", strName.toUpperCase());
+            // 替换保护宏
+            strFile = strFile.replaceAll("PLACE#HOLDER", strName.toUpperCase());
 
-                if(strObj != ""){
-                    // 替换继承类型
-                    strFile = strFile.replaceAll("OBJECTHOLDER", strObj);
-                }
-            };
+            // 替换继承类型
+            if(strObj != ""){
+                strFile = strFile.replaceAll("OBJECTHOLDER", strObj);
+            }
 
             // 替换父对象类型
-            if(strObj != ""){
-                if(strObj == "QObject"){
-                    strFile = strFile.replaceAll("PARENTHOLDER", "QObject");
-                }else{
-                    strFile = strFile.replaceAll("PARENTHOLDER", "QWidget");
-                }
+            if(strParent != ""){
+                strFile = strFile.replaceAll("PARENTHOLDER", strParent);
             }
             
             // 保存路径
-            let strPath : string = path.join(this.m_strDir, strName + strExt);
+            let upper = vscode.workspace.getConfiguration().get("qt.fileNameUpperCase", true);
+            let fileName = "";
+            if(upper){
+                fileName = strName[0].toUpperCase() + strName.substring(1, strName.length);
+            }else{
+                fileName = strName[0].toLowerCase() + strName.substring(1, strName.length);
+            }
+            let strPath = path.join(this.m_strDir, fileName + strExt)
+            strFile = strFile.replaceAll("PLACEUIHOLDER", "ui_" + fileName);
+            
 
             // 写出文件
             fs.writeFile(strPath, strFile, (err)=>{
@@ -150,6 +163,7 @@ class TemplateCreator {
     private async getParentObject(){
 
         const quickPick = vscode.window.createQuickPick();
+
         quickPick.placeholder = "Select Parent Object";
 		quickPick.items = Array.from(gLstParentObject).map( item => {
             return {label:item};
@@ -168,6 +182,23 @@ class TemplateCreator {
                     resolve("");
                 }
                 quickPick.hide();
+            });
+        }) 
+    }
+
+    private async getObjectName(){
+        const inputbox = vscode.window.createInputBox();
+
+        inputbox.placeholder = "Please input the name of Qt class";
+
+        inputbox.onDidHide(() => {
+                inputbox.dispose()
+            });
+        inputbox.show();
+        
+		return await new Promise<string>(resolve => {
+            inputbox.onDidAccept( () => {
+                resolve(inputbox.value);
             });
         }) 
     }
