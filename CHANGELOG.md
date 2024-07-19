@@ -2,7 +2,11 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
-## [0.3.1] 2024-07-19 22:45:28
+## [0.3.2] 2024-07-19 22:45:28
+## 修复
+- 修复头文件引用命名
+
+## [0.3.2] 2024-07-19 22:45:28
 ## 修复
 - 修复创建 `QObject` 模块问题
 - 修复创建 `ui_xxx.h` 引用问题

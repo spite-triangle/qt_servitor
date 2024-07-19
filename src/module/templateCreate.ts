@@ -150,7 +150,7 @@ class TemplateCreator {
                 fileName = strName[0].toLowerCase() + strName.substring(1, strName.length);
             }
             let strPath = path.join(this.m_strDir, fileName + strExt)
-            strFile = strFile.replaceAll("PLACEUIHOLDER", "ui_" + fileName);
+            strFile = strFile.replaceAll("PLACEFILENAME", fileName);
             
 
             // 写出文件
