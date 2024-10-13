@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import path = require('path');
+import { ConfigAssist } from '../common/config';
 import { VERSION } from '../common/define';
 
 
@@ -66,13 +67,23 @@ class SdkSelector{
         quickPick.show();
         
 		return await new Promise<string>(resolve => {
-            quickPick.onDidAccept( () => {
-                if(quickPick.selectedItems.length >= 0){
+            // quickPick.onDidAccept( () => {
+            // });
+            let bSelected = false; 
+            quickPick.onDidChangeSelection((items: readonly vscode.QuickPickItem[])=>{
+                if(items.length >= 0){
                     resolve( path.join(strSdkRoot, quickPick.selectedItems[0].label));
-                }else{
+                }
+    
+                resolve("");
+                bSelected = true;
+                quickPick.hide();
+            });
+
+            quickPick.onDidHide(()=>{
+                if(bSelected == false){
                     resolve("");
                 }
-                quickPick.hide();
             });
         }) 
     }
@@ -104,6 +115,28 @@ class SdkSelector{
     }
 }
 
+class SdkStatusBar{
+    static bar:vscode.StatusBarItem;
+
+    static createBar(command:string){
+        this.bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right,700);
+        this.bar.command = command;
+        this.bar.text = "Qt: NONE";
+        this.bar.tooltip = "Qt SDK Version";
+        this.bar.show();
+    }
+
+    static updateText(strSdk: string){
+        let sdk = path.basename(strSdk);
+        if(sdk.length <= 0 || sdk == '.' || sdk == '..'){
+            this.bar.text = "Qt: NONE";
+        }else{
+            this.bar.text = `Qt: ${sdk}`;
+        }
+    }
+}
+
 export{
-    SdkSelector
+    SdkSelector,
+    SdkStatusBar
 }

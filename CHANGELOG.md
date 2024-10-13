@@ -2,6 +2,14 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.4.0] 2024-10-13 17:35:08
+## 修复
+- 修复 `QML` 代码提示异常问题
+- 修复 `Qml LSP` 连接崩溃问题
+
+## 增加
+- 添加 `Qt SDK` 切换状态栏按钮
+
 ## [0.3.2] 2024-07-19 22:45:28
 ## 修复
 - 修复头文件引用命名

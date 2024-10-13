@@ -2,7 +2,7 @@
     "name": "qtservitor",
     "displayName": "Qt Servitor",
     "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "preview": true,
     "publisher": "TriangleOxO",
     "icon": "icon/qt.ico",
@@ -327,7 +327,8 @@
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
+        "test": "node ./out/test/runTest.js",
+        "package": "vsce package"
     },
     "devDependencies": {
         "@types/get-port": "^4.2.0",

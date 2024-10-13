@@ -4,19 +4,21 @@ import * as vscode from 'vscode';
 import * as process from 'process'
 
 import { ToolLauncher } from './module/launchTools';
-import { TOOLS} from './common/define';
+import { PROPERTIES, TOOLS} from './common/define';
 import { Logger, LOG_LEVEL} from './common/log'
 import { CreateTemplate } from './module/templateCreate';
 import { ConfigAssist } from './common/config';
 import { Terminal } from './module/terminal';
 import { OxO } from './common/tool';
 import { LspClient } from './language/lspClient';
+import { SdkStatusBar } from './module/sdkSelect';
 import path = require('path');
+
 
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 
 	if(process.platform !=  "linux" && process.platform != "win32"){
 		vscode.window.showErrorMessage("This extension is incompatible with platform " + process.platform);
@@ -139,18 +141,24 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 	context.subscriptions.push(disposable);
+	
 
+	SdkStatusBar.createBar('qt.updateSdk');
+	SdkStatusBar.updateText(await ConfigAssist.instance().getPropertiesPath(PROPERTIES.SDK));
 	disposable = vscode.commands.registerCommand('qt.updateSdk', async (uri: vscode.Uri, selectedFiles: any) => {
 		
 		try {
-			await ConfigAssist.instance().updateSdkPath();
-			
+			let strSdk = await ConfigAssist.instance().updateSdkPath();
+			SdkStatusBar.updateText(strSdk);
+			if(strSdk.length <= 0) return;
+
 			// 通知 lsp 当前 sdk 修改
 			let folders = vscode.workspace.workspaceFolders;
 			if(folders == undefined) return;
 			let target = OxO.getOuterMostWorkspaceFolder(folders[0]);
 			LspClient.didChangeConfigurationParams(target.uri.toString());
-
+			
+			
 		} catch (error) {
 			if(error instanceof Error) vscode.window.showErrorMessage(`Error Update Sdk Path: ${error.message}`);
 		}

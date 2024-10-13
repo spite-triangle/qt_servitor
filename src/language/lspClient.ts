@@ -1,13 +1,14 @@
 import * as vscode from 'vscode'
 import * as lsp from 'vscode-languageclient/node'
 import * as net from 'net'
-import { spawn } from 'child_process'
+import { ChildProcess, ChildProcessWithoutNullStreams, spawn } from 'child_process'
 import { Logger } from '../common/log'
 import { OxO } from '../common/tool'
 import {ConfigAssist} from '../common/config'
 import { PROPERTIES } from '../common/define'
 import { resourceUsage } from 'process'
 import { ClientRequest } from 'http'
+import { clearScreenDown } from 'readline'
 
 
 /* qmllsp 配置 */
@@ -19,6 +20,95 @@ interface QmlSettings{
     sourceFolder?:string[];
     sdk?:string;
 }
+
+enum SERVER_STATE{
+    INIT,
+    RUNNING,
+    STOP,
+    ERROR
+}
+
+
+class LspServer{
+    state:SERVER_STATE = SERVER_STATE.INIT;
+    process:ChildProcessWithoutNullStreams | null= null;
+    errorMsg: string = "";
+
+    async launch(port : number){
+        let qtConfig = ConfigAssist.qtConfigueration();
+        let configAssist = ConfigAssist.instance();
+        let tool = await configAssist.getPropertiesPath(PROPERTIES.QML_LSP_TOOL);
+        let qmlTypeDesc = await configAssist.getPropertiesPath(PROPERTIES.QML_TYPE_DESC);
+        let sdk = await configAssist.getPropertiesPath(PROPERTIES.SDK);
+
+        
+        let args : string[] =[
+            `-p ${port}`,
+            // "-v",
+            `--sdk=${sdk}`,
+            `--typeDescription=${qmlTypeDesc}`
+        ];
+
+        if(qtConfig != undefined){
+            if(qtConfig.importPath != undefined){
+                let command = OxO.serializeArray(qtConfig.importPath);
+                args.push(`--import=${command}`);
+            }
+
+            if(qtConfig.qrc != undefined){
+                let command = OxO.serializeArray(qtConfig.qrc);
+                args.push(`--qrc=${command}`);
+            }
+
+            if(qtConfig.sourceFolder != undefined){
+                let command = OxO.serializeArray(qtConfig.sourceFolder);
+                args.push(`--src=${command}`);
+            }
+
+            if(qtConfig.targetFolder != undefined){
+                let command = OxO.serializeArray(qtConfig.targetFolder);
+                args.push(`--targetFolder=${command}`);
+            }
+
+            if(qtConfig.qml2ImportPath != undefined){
+                let command = OxO.serializeArray(qtConfig.qml2ImportPath);
+                args.push(`--qml2imports=${command}`);
+            }
+        }
+
+        
+        this.process = spawn(tool, args, {
+            env: process.env,
+        });
+        
+        this.process.on("spawn",  ()=>{
+            this.state = SERVER_STATE.RUNNING;
+        });
+
+        this.process.on("error", (error)=>{
+            this.errorMsg = error.message;
+            this.state = SERVER_STATE.ERROR;
+        });
+
+        this.process.on("exit", (code) =>{
+            this.state = SERVER_STATE.STOP;
+        });
+
+    }
+
+
+
+
+    static  launchDebug(): Promise<lsp.StreamInfo>{
+        let socket = net.connect(12345);
+        let result: lsp.StreamInfo = {
+            writer: socket,
+            reader: socket
+        };
+        return Promise.resolve(result);
+    }
+
+};
 
 export class LspClient{
     private static m_configChangeCount : Map<string, number> = new Map();
@@ -69,10 +159,18 @@ export class LspClient{
         return true;
     }
 
-    static createClient(folder: vscode.WorkspaceFolder): boolean{
+    static async createClient(folder: vscode.WorkspaceFolder){        
         let target = OxO.getOuterMostWorkspaceFolder(folder);
         if(this.contains(target.uri.toString()) == true) return true;
+        
+        // 获取服务端口，并创建服务
+        let getPort = require('get-port');
+        let port = await getPort();
+        let server = new LspServer();
+        await server.launch(port);
+        // let server = await this.launchServer(port);
 
+        // 客户端连接服务
         const clientOptions: lsp.LanguageClientOptions = {
 			documentSelector: [
 				{scheme: 'file',language: 'qml' },
@@ -84,7 +182,41 @@ export class LspClient{
 			outputChannel: this.m_channel
 		};
 
-		let client = new lsp.LanguageClient('qmllsp', 'QML LSP', this.launchServer, clientOptions);
+		let client = new lsp.LanguageClient('qmllsp', 'QML LSP',  ()=>{
+            return new Promise((resolve, reject)=>{
+                setTimeout(() => {
+                    if(server.process == null || server.state == SERVER_STATE.ERROR || server.state == SERVER_STATE.STOP){
+                        reject(`Failed to launch LSP server. ${server.errorMsg}`);
+                    }else if(server.state == SERVER_STATE.INIT){
+                        if(server.process == null){
+                            reject("Failed to launch LSP server.");
+                        }else{
+                            server.process.on("spawn",()=>{
+                                let socket = net.connect(port);
+                                let result: lsp.StreamInfo = {
+                                    writer: socket,
+                                    reader: socket
+                                };
+                
+                                resolve(result);
+                            });
+                        }
+                    }else if(server.state == SERVER_STATE.RUNNING){
+                        let socket = net.connect(port);
+                        let result: lsp.StreamInfo = {
+                            writer: socket,
+                            reader: socket
+                        };
+                        
+                        resolve(result);
+                    }
+                }, 500);
+            });
+        }, clientOptions);
+
+        // 测试环境
+        // let client = new lsp.LanguageClient('qmllsp', 'QML LSP', LspServer.launchDebug, clientOptions);
+
 		client.start();
         this.append(target.uri.toString(), client);
         this.m_configChangeCount.set(target.uri.toString(), 0);
@@ -128,6 +260,10 @@ export class LspClient{
             if(e.newState == lsp.State.Stopped){
                 dWatcher.dispose();
                 dActive.dispose();
+
+                if(server.process != null){
+                    server.process.kill();
+                }
             }
         });
 
@@ -135,92 +271,4 @@ export class LspClient{
     }
 
 
-
-    private static async launchServer(): Promise<lsp.StreamInfo>{
-        let getPort = require('get-port');
-        let qtConfig = ConfigAssist.qtConfigueration();
-        let configAssist = ConfigAssist.instance();
-        let tool = await configAssist.getPropertiesPath(PROPERTIES.QML_LSP_TOOL);
-        let qmlTypeDesc = await configAssist.getPropertiesPath(PROPERTIES.QML_TYPE_DESC);
-        let sdk = await configAssist.getPropertiesPath(PROPERTIES.SDK);
-        let port = await getPort();
-
-        
-        let args : string[] =[
-        	`-p ${port}`,
-        	// "-v",
-            `--sdk=${sdk}`,
-            `--typeDescription=${qmlTypeDesc}`
-        ];
-
-        if(qtConfig != undefined){
-            if(qtConfig.importPath != undefined){
-                let command = OxO.serializeArray(qtConfig.importPath);
-                args.push(`--import=${command}`);
-            }
-
-            if(qtConfig.qrc != undefined){
-                let command = OxO.serializeArray(qtConfig.qrc);
-                args.push(`--qrc=${command}`);
-            }
-
-            if(qtConfig.sourceFolder != undefined){
-                let command = OxO.serializeArray(qtConfig.sourceFolder);
-                args.push(`--src=${command}`);
-            }
-
-            if(qtConfig.targetFolder != undefined){
-                let command = OxO.serializeArray(qtConfig.targetFolder);
-                args.push(`--targetFolder=${command}`);
-            }
-
-            if(qtConfig.qml2ImportPath != undefined){
-                let command = OxO.serializeArray(qtConfig.qml2ImportPath);
-                args.push(`--qml2imports=${command}`);
-            }
-        }
-
-        let	server = spawn(tool, args, {
-        	env: process.env,
-        });
-
-
-
-        return new Promise((resolve,reject)=>{
-
-            server.on("spawn",  ()=>{
-                // 先等待 qmllsp 的服务器启动
-                new Promise(resolve => setTimeout(resolve, 5000)).then(()=>{
-                    let socket = net.connect(port);
-                    let result: lsp.StreamInfo = {
-                        writer: socket,
-                        reader: socket
-                    };
-                    resolve(result);
-                })
-            });
-
-            server.on("error", (error)=>{
-                Logger.ERROR(`Failed to launch server. ${error}`, true);
-                reject(error);
-            });
-
-            server.on("exit", (code) =>{
-                if(code == 0) return;
-                Logger.ERROR(`Failed to launch server. ${code}`, true);
-            });
-        })
-    }
-
-
-
-
-    private static launchServerDebug(): Promise<lsp.StreamInfo>{
-        let socket = net.connect(12345);
-        let result: lsp.StreamInfo = {
-            writer: socket,
-            reader: socket
-        };
-        return Promise.resolve(result);
-    }
 }
