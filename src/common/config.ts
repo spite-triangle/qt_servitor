@@ -454,10 +454,10 @@ class ConfigAssist {
     }
 
     private async getSdkPath(str:string) : Promise<string> {
+        if(this.m_strSdkCache != "") return this.m_strSdkCache;
+        
         // 指定了 sdk
         if( str != "") return str;
-
-        if(this.m_strSdkCache != "") return this.m_strSdkCache;
 
         return await this.updateSdkPath();
     }

@@ -2,6 +2,12 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.4.2] 2024-11-02 16:25:58
+## 修复
+- 修复 `sdk` 切换延迟
+- 修复 `qmllsp` 一定几率无法启动问题
+
+
 ## [0.4.1] 2024-11-02 13:58:57
 
 ## 修复

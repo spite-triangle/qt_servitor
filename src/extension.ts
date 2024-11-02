@@ -220,7 +220,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	for(let doc of vscode.workspace.textDocuments){
 
 		// 校验
-		if (doc.languageId !== 'qml' || doc.uri.scheme !== "file") return;
+		if (doc.languageId !== 'qml' || doc.uri.scheme !== "file") continue;
 	
 		let folder = vscode.workspace.getWorkspaceFolder(doc.uri);
 		if(folder == undefined) return;
