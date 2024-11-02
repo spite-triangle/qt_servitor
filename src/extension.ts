@@ -26,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 
 	// 初始化 Logger
-	Logger.instance().init(LOG_LEVEL.ERROR, vscode.window.createOutputChannel("Qt Servitor"));
+	Logger.instance().init(LOG_LEVEL.NON, vscode.window.createOutputChannel("Qt Servitor"));
 	Logger.INFO("launch");
 	ConfigAssist.instance().m_strExtensionDir = context.extensionPath;
 
@@ -152,12 +152,15 @@ export async function activate(context: vscode.ExtensionContext) {
 			SdkStatusBar.updateText(strSdk);
 			if(strSdk.length <= 0) return;
 
+			// 更新配置
+			await ConfigAssist.instance().updateLaunch();
+			await ConfigAssist.instance().updateCppProperties();	
+
 			// 通知 lsp 当前 sdk 修改
 			let folders = vscode.workspace.workspaceFolders;
 			if(folders == undefined) return;
 			let target = OxO.getOuterMostWorkspaceFolder(folders[0]);
 			LspClient.didChangeConfigurationParams(target.uri.toString());
-			
 			
 		} catch (error) {
 			if(error instanceof Error) vscode.window.showErrorMessage(`Error Update Sdk Path: ${error.message}`);
@@ -169,7 +172,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	disposable = vscode.commands.registerCommand('qt.updateConfigure', async (uri: vscode.Uri, selectedFiles: any) => {
 		
 		try {
-			
 			await ConfigAssist.instance().updateLaunch();
 			await ConfigAssist.instance().updateCppProperties();
 		} catch (error) {

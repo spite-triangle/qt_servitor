@@ -54,15 +54,15 @@ class Logger  {
     }
 
     public warning(text: string) {
-        if (this.m_level >= LOG_LEVEL.WARNING)  this.print(text, "warning");
+        if (this.m_level <= LOG_LEVEL.WARNING)  this.print(text, "warning");
     }
 
     public error(text: string) {
-        if (this.m_level >= LOG_LEVEL.ERROR) this.print(text, "error");
+        if (this.m_level <= LOG_LEVEL.ERROR) this.print(text, "error");
     }
 
     public info(text: string) {
-        if (this.m_level >= LOG_LEVEL.INFO) this.print(text, "debug");
+        if (this.m_level <= LOG_LEVEL.INFO) this.print(text, "debug");
         
     }
 

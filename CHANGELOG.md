@@ -2,6 +2,15 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.4.1] 2024-11-02 13:58:57
+
+## 修复
+- 修复 `qmllsp` 默认配置未正常启动问题
+
+## 添加
+- 实现 `qmllsp` 日志打印
+
+
 ## [0.4.0] 2024-10-13 17:35:08
 ## 修复
 - 修复 `QML` 代码提示异常问题

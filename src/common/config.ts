@@ -110,27 +110,25 @@ class CppPropertiesTool{
         this.saveJson(strPath,config);
     }
 
-    getQtConfiguration(strPath: string)  {
+    async getQtConfiguration(strPath: string)  {
+        let qtConfig: QtConfiguration = {};
+
         let config :ConfigurationJson = this.parseJson(strPath) as any;
-        if(config == null){
-            Logger.WARN("Failed to parse c_cpp_properties.json.");
-            return undefined;
+        if(config != null && config.qt != undefined){
+            let jsonConfig = config.qt;
+
+            qtConfig.importPath = this.resolveFiles(jsonConfig.importPath);
+            qtConfig.qml2ImportPath = this.resolveFiles(jsonConfig.qml2ImportPath);
+            qtConfig.targetFile = this.resolveFile(jsonConfig.targetFile);
+            qtConfig.qrc = this.resolveFiles(jsonConfig.qrc);
+            qtConfig.sourceFolder = this.resolveFiles(jsonConfig.sourceFolder);
+            qtConfig.targetFolder = this.resolveFiles(jsonConfig.targetFolder);
+            qtConfig.projectRoot = this.resolveFile(jsonConfig.projectRoot);
         }
 
-        let qtConfig = config.qt;
-        if(qtConfig == undefined) return undefined;
-
-
-        qtConfig.importPath = this.resolveFiles(qtConfig.importPath);
-        qtConfig.qml2ImportPath = this.resolveFiles(qtConfig.qml2ImportPath);
-        qtConfig.targetFile = this.resolveFile(qtConfig.targetFile);
-        qtConfig.qrc = this.resolveFiles(qtConfig.qrc);
-        qtConfig.sourceFolder = this.resolveFiles(qtConfig.sourceFolder);
-        qtConfig.targetFolder = this.resolveFiles(qtConfig.targetFolder);
-        qtConfig.projectRoot = this.resolveFile(qtConfig.projectRoot);
 
         // 目标程序所在目录添加到 targetFolder 中
-        if(qtConfig != undefined && qtConfig.targetFile != undefined){
+        if(qtConfig.targetFile != undefined){
             let targetFolder = path.dirname(qtConfig.targetFile); 
             if(qtConfig.targetFolder == undefined){
                 qtConfig.targetFolder = [targetFolder]; 
@@ -140,7 +138,7 @@ class CppPropertiesTool{
         }
 
         // 将当前 workspace 当作 project
-        if(qtConfig != undefined && qtConfig.projectRoot == undefined){
+        if(qtConfig.projectRoot == undefined){
             let folders = vscode.workspace.workspaceFolders;
             if(folders == undefined || folders.length < 0) return undefined;
             
@@ -149,7 +147,7 @@ class CppPropertiesTool{
         }
 
         // 将 projectRoot 添加到 sourceFolder 中
-        if(qtConfig != undefined && qtConfig.projectRoot != undefined){
+        if(qtConfig.projectRoot != undefined){
             if(qtConfig.sourceFolder == undefined){
                 qtConfig.sourceFolder = [qtConfig.projectRoot]; 
             }else{

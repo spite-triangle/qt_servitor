@@ -82,7 +82,7 @@ const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
     }
 
     public async launchPreview(file:string){
-        let config = ConfigAssist.qtConfigueration();
+        let config = await ConfigAssist.qtConfigueration();
         if(config == undefined){
             Logger.WARN("Please configure the `qt` field in `c_cpp_properties.json`.", true)
             return;

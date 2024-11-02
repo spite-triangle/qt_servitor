@@ -40,7 +40,7 @@
 
 ## 自动补全
 
-![format](../git/format.gif)
+![format](../git/complete.gif)
 
 
 ## 定义跳转
