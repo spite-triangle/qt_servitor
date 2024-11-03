@@ -161,7 +161,9 @@ export async function activate(context: vscode.ExtensionContext) {
 			if(folders == undefined) return;
 			let target = OxO.getOuterMostWorkspaceFolder(folders[0]);
 			LspClient.didChangeConfigurationParams(target.uri.toString());
-			
+
+			// 尝试启动服务
+			LspClient.createClient(folders[0]);
 		} catch (error) {
 			if(error instanceof Error) vscode.window.showErrorMessage(`Error Update Sdk Path: ${error.message}`);
 		}

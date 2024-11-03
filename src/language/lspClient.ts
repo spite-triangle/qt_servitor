@@ -47,7 +47,7 @@ class LspServer{
 
         let args : string[] =[
             `-p ${port}`,
-            // "-v",
+            "-v",
             `--sdk=${sdk}`,
             `--typeDescription=${qmlTypeDesc}`
         ];

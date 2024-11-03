@@ -2,6 +2,12 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.4.3] 2024-11-03 18:36:20
+## 修复
+- 修复解析 `c_cpp_properties.json` 失败，无法正常启动 `qmllsp` 问题
+- 修复空文本，`import` 无法正确识别问题
+
+
 ## [0.4.2] 2024-11-02 16:25:58
 ## 修复
 - 修复 `sdk` 切换延迟

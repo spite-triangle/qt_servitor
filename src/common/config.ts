@@ -113,18 +113,22 @@ class CppPropertiesTool{
     async getQtConfiguration(strPath: string)  {
         let qtConfig: QtConfiguration = {};
 
-        let config :ConfigurationJson = this.parseJson(strPath) as any;
-        if(config != null && config.qt != undefined){
-            let jsonConfig = config.qt;
-
-            qtConfig.importPath = this.resolveFiles(jsonConfig.importPath);
-            qtConfig.qml2ImportPath = this.resolveFiles(jsonConfig.qml2ImportPath);
-            qtConfig.targetFile = this.resolveFile(jsonConfig.targetFile);
-            qtConfig.qrc = this.resolveFiles(jsonConfig.qrc);
-            qtConfig.sourceFolder = this.resolveFiles(jsonConfig.sourceFolder);
-            qtConfig.targetFolder = this.resolveFiles(jsonConfig.targetFolder);
-            qtConfig.projectRoot = this.resolveFile(jsonConfig.projectRoot);
+        try {
+            let config :ConfigurationJson = this.parseJson(strPath) as any;
+            if(config != null && config.qt != undefined){
+                let jsonConfig = config.qt;
+    
+                qtConfig.importPath = this.resolveFiles(jsonConfig.importPath);
+                qtConfig.qml2ImportPath = this.resolveFiles(jsonConfig.qml2ImportPath);
+                qtConfig.targetFile = this.resolveFile(jsonConfig.targetFile);
+                qtConfig.qrc = this.resolveFiles(jsonConfig.qrc);
+                qtConfig.sourceFolder = this.resolveFiles(jsonConfig.sourceFolder);
+                qtConfig.targetFolder = this.resolveFiles(jsonConfig.targetFolder);
+                qtConfig.projectRoot = this.resolveFile(jsonConfig.projectRoot);
+            }
+        } catch (error) {
         }
+
 
 
         // 目标程序所在目录添加到 targetFolder 中
