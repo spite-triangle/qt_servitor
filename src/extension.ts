@@ -144,7 +144,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	
 
 	SdkStatusBar.createBar('qt.updateSdk');
-	SdkStatusBar.updateText(await ConfigAssist.instance().getPropertiesPath(PROPERTIES.SDK));
+	try{
+		SdkStatusBar.updateText(await ConfigAssist.instance().getPropertiesPath(PROPERTIES.SDK));
+	}catch(error){
+		Logger.WARN(`Failed to Update Sdk Version: ${error}`);
+	}
 	disposable = vscode.commands.registerCommand('qt.updateSdk', async (uri: vscode.Uri, selectedFiles: any) => {
 		
 		try {
@@ -160,10 +164,9 @@ export async function activate(context: vscode.ExtensionContext) {
 			let folders = vscode.workspace.workspaceFolders;
 			if(folders == undefined) return;
 			let target = OxO.getOuterMostWorkspaceFolder(folders[0]);
-			LspClient.didChangeConfigurationParams(target.uri.toString());
-
-			// 尝试启动服务
-			LspClient.createClient(folders[0]);
+			if(LspClient.contains(target.uri.toString())){
+				LspClient.didChangeConfigurationParams(target.uri.toString());
+			}
 		} catch (error) {
 			if(error instanceof Error) vscode.window.showErrorMessage(`Error Update Sdk Path: ${error.message}`);
 		}

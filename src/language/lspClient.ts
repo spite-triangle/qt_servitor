@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import * as lsp from 'vscode-languageclient/node'
 import * as net from 'net'
 import * as fs from 'fs'
-import { ChildProcess, ChildProcessWithoutNullStreams, spawn } from 'child_process'
+import { ChildProcess, ChildProcessWithoutNullStreams, spawn,exec} from 'child_process'
 import { Logger } from '../common/log'
 import { OxO } from '../common/tool'
 import {ConfigAssist} from '../common/config'
@@ -84,21 +84,22 @@ class LspServer{
             env: process.env,
         });
         
-        this.process.on("spawn",  ()=>{
+        process.on("spawn",  ()=>{
             this.state = SERVER_STATE.RUNNING;
             Logger.INFO("launch qmllsp successfully.");
         });
 
-        this.process.on("error", (error)=>{
+        process.on("error", (error)=>{
             this.errorMsg = error.message;
             this.state = SERVER_STATE.ERROR;
             Logger.ERROR(`occur exception in qmllsp. ${this.errorMsg}`, true);
         });
 
-        this.process.on("exit", (code) =>{
+        process.on("exit", (code) =>{
             this.state = SERVER_STATE.STOP;
-            Logger.ERROR(`stop qmllsp.`, true);
+            Logger.ERROR(`stop qmllsp ${code}`, true);
         });
+
 
         return true;
     }
@@ -115,14 +116,36 @@ class LspServer{
 
 };
 
+export class LspObject{
+    client : lsp.LanguageClient | null = null;
+    server : LspServer | null = null;
+};
+
+
 export class LspClient{
     private static m_configChangeCount : Map<string, number> = new Map();
-    private static m_clients: Map<string, lsp.LanguageClient> = new Map();
+    private static m_clients: Map<string, LspObject> = new Map();
     private static m_channel: vscode.OutputChannel = vscode.window.createOutputChannel("qmllsp");
     
-    static append(folder: string, client: lsp.LanguageClient){
+    static append(folder: string, obj: LspObject){
         if(this.contains(folder) == false){
-            this.m_clients.set(folder, client);
+            this.m_clients.set(folder, obj);
+        }
+    }
+
+    static getObject(folder: string): LspObject | undefined{
+        return this.m_clients.get(folder);
+    }
+
+    static updateServer(folder: string, server:LspServer){
+        if(this.contains(folder) == true){
+            let obj = this.m_clients.get(folder);
+            if(obj == undefined) return;
+            if(obj.server != null){
+                obj.server.process?.kill();
+            } 
+
+            obj.server = server;
         }
     }
 
@@ -131,10 +154,10 @@ export class LspClient{
     }
 
     static remove(folder:string){
-        let client = this.m_clients.get(folder);
-        if(client){
+        let obj = this.m_clients.get(folder);
+        if(obj?.client != null){
             this.m_clients.delete(folder);
-            client.stop();
+            obj.client.stop()
         }
         
     }
@@ -142,8 +165,8 @@ export class LspClient{
     static async didChangeConfigurationParams(folder:string){
         if(LspClient.contains(folder) == false) return false;
 
-        let client = this.m_clients.get(folder);
-        if(client == undefined) return false;
+        let obj = this.m_clients.get(folder);
+        if(obj == undefined) return false;
 
         let qtConfig = await ConfigAssist.qtConfigueration();
         if(qtConfig == undefined) return false;
@@ -160,7 +183,11 @@ export class LspClient{
             sourceFolder : qtConfig?.sourceFolder
         };
 
-        client.sendNotification("workspace/didChangeConfiguration", settings);
+        if(obj.client !=null){
+            obj.client.sendNotification("workspace/didChangeConfiguration", settings);
+        }else{
+            return false;
+        }
         return true;
     }
 
@@ -168,54 +195,47 @@ export class LspClient{
         let target = OxO.getOuterMostWorkspaceFolder(folder);
         if(this.contains(target.uri.toString()) == true) return true;
         
-        // 获取服务端口，并创建服务
-        let getPort = require('get-port');
-        let port = await getPort();
-        let server = new LspServer();
-        let bOk = await server.launch(port);
-        if(bOk == false) return false;
+
 
         // 客户端连接服务
         const clientOptions: lsp.LanguageClientOptions = {
-			documentSelector: [
-				{scheme: 'file',language: 'qml' },
-				{scheme: "file", language: 'qmldir'},
-				{scheme: "file", language: 'xml', pattern: "**/*.qrc"},
-				{scheme: "file", language: 'javascript'}
-			],
-			diagnosticCollectionName: 'qmllsp',
-			outputChannel: this.m_channel
-		};
+            documentSelector: [
+                {scheme: 'file',language: 'qml' },
+                {scheme: "file", language: 'qmldir'},
+                {scheme: "file", language: 'xml', pattern: "**/*.qrc"},
+                {scheme: "file", language: 'javascript'}
+            ],
+            diagnosticCollectionName: 'qmllsp',
+            outputChannel: this.m_channel
+        };
 
 		let client = new lsp.LanguageClient('qmllsp', 'QML LSP',  ()=>{
-            return new Promise((resolve, reject)=>{
-                setTimeout(() => {
-                    if(server.process == null || server.state == SERVER_STATE.ERROR || server.state == SERVER_STATE.STOP){
-                        reject(`Failed to launch LSP server. ${server.errorMsg}`);
-                    }else if(server.state == SERVER_STATE.INIT){
-                        if(server.process == null){
-                            reject("Failed to launch LSP server.");
-                        }else{
-                            server.process.on("spawn",()=>{
-                                let socket = net.connect(port);
-                                let result: lsp.StreamInfo = {
-                                    writer: socket,
-                                    reader: socket
-                                };
+            return new Promise(async (resolve, reject)=>{
+                // 获取服务端口，并创建服务
+                let getPort = require('get-port');
+                let port = await getPort();
                 
-                                resolve(result);
-                            });
-                        }
-                    }else if(server.state == SERVER_STATE.RUNNING){
-                        let socket = net.connect(port);
-                        let result: lsp.StreamInfo = {
-                            writer: socket,
-                            reader: socket
-                        };
-                        
-                        resolve(result);
+                let obj = this.getObject(target.uri.toString());
+                if(obj == undefined) return;
+
+                if(obj.server == null || obj.server.process?.killed == true || obj.server.process?.exitCode != null){
+                    let server = new LspServer();
+                    if(await server.launch(port) == false){
+                        reject("launch qmllsp failed.");
+                        return;
                     }
-                }, 500);
+                    this.updateServer(target.uri.toString(), server);
+                }
+
+                setTimeout(function(){ 
+                    let socket = net.connect(port);
+                    let result: lsp.StreamInfo = {
+                        writer: socket,
+                        reader: socket,
+                    };
+    
+                    resolve(result);
+                }, 5000);
             });
         }, clientOptions);
 
@@ -224,8 +244,10 @@ export class LspClient{
 
 		client.start();
 
+        let obj = new LspObject();
+        obj.client = client;
+        this.append(target.uri.toString(), obj);
 
-        this.append(target.uri.toString(), client);
         this.m_configChangeCount.set(target.uri.toString(), 0);
 
         // 监控配置文件
@@ -267,10 +289,7 @@ export class LspClient{
             if(e.newState == lsp.State.Stopped){
                 dWatcher.dispose();
                 dActive.dispose();
-
-                if(server.process != null){
-                    server.process.kill();
-                }
+                
             }
         });
 

@@ -2,6 +2,15 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.5.0] 2025-03-23 18:59:49
+## 修复
+- 修身版本切换异常问题
+- 修复 `qml` 部分无法补全问题
+- 修复 `qml` 空文件不全异常问题
+
+## 修改
+- 更改 `qmllsp` 启动方案
+
 ## [0.4.3] 2024-11-03 18:36:20
 ## 修复
 - 修复解析 `c_cpp_properties.json` 失败，无法正常启动 `qmllsp` 问题

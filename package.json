@@ -2,7 +2,7 @@
     "name": "qtservitor",
     "displayName": "Qt Servitor",
     "description": "It's a friendly tool that help you to build Qt application comfortably with vscode.",
-    "version": "0.4.3",
+    "version": "0.5.0",
     "preview": true,
     "publisher": "TriangleOxO",
     "icon": "icon/qt.ico",
@@ -349,6 +349,7 @@
         "get-port": "^4.1.0",
         "iconv-lite": "^0.6.3",
         "uuid": "^10.0.0",
+        "vsce": "^2.15.0",
         "vscode-languageclient": "^9.0.1"
     }
 }

@@ -158,6 +158,14 @@ class CppPropertiesTool{
                 qtConfig.sourceFolder.push(qtConfig.projectRoot);
             }
         }
+
+        if(qtConfig.importPath == undefined){
+            qtConfig.importPath = [];
+        }
+        
+        let sdk = await ConfigAssist.instance().getPropertiesPath(PROPERTIES.SDK);
+        qtConfig.importPath.push(path.join(sdk, "qml"));
+
         return qtConfig;
     }
 
