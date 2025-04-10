@@ -129,7 +129,9 @@ class SdkStatusBar{
     static updateText(strSdk: string){
         let sdk = path.basename(strSdk);
         if(sdk.length <= 0 || sdk == '.' || sdk == '..'){
-            this.bar.text = "Qt: NONE";
+            if(this.bar.text == ""){
+                this.bar.text = "Qt: NONE";
+            }
         }else{
             this.bar.text = `Qt: ${sdk}`;
         }

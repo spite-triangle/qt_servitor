@@ -29,13 +29,13 @@ class Terminal{
         term.show(false);
     }
 
-    public execCommand(command:string, args:string[], newTerm: boolean = false){
+    public async execCommand(command:string, args:string[], newTerm: boolean = false){
         let line = command;
         for(let arg of args){
             line = line + " " + arg;
         }
 
-        this.execLine(line, newTerm);
+        await this.execLine(line, newTerm);
     }
 
     /* 获取 terminal */
@@ -47,7 +47,7 @@ class Terminal{
             term = await Terminal.createTerminal(this.m_name);
         }else if(newTerm == true){
             // ctrl + c 信号
-            term.sendText('\x03\r\x03\r');
+            term.sendText('\x03\n\x03\n');
             term.dispose();
             term = await Terminal.createTerminal(this.m_name);
         }

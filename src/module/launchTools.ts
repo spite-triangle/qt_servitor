@@ -10,6 +10,7 @@ import {Logger} from '../common/log'
 import { Terminal } from './terminal';
 import { v4 as uuidv4 } from 'uuid'
 import { OxO } from '../common/tool';
+import { resourceUsage } from 'process';
 
 const gMapNames: Map<TOOLS, string[]> = new Map([
     [TOOLS.NON,[]],
@@ -118,9 +119,9 @@ const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
             return;
         }
 
-        if(config.targetFile != undefined){
-            args.push(`-t ${config.targetFile}`);     
-        }else{
+        if(config.targetFile == undefined){
+        //     args.push(`-t ${config.targetFile}`);     
+        // }else{
             Logger.ERROR('Please configure `qt.targetFile` field in `c_cpp_properties.json`.', true);
             return;
         }
@@ -143,8 +144,14 @@ const gMapExtentsion : Map<TOOLS, Set<string>> = new Map([
             args.push(`--cwd=${config.targetFolder[0]}`);
         }
 
-        let term = new Terminal(this.m_strName);
-        term.execCommand(tool, args, true);
+        let termTarget = new Terminal(path.basename(config.targetFile));
+        await termTarget.execLine(`cd ${config.targetFolder}`);
+        await termTarget.execCommand(config.targetFile, [`-qmljsdebugger=file:${socketFile},block`], false);
+        
+        setTimeout(async ()=>{
+            let termPreview = new Terminal(this.m_strName);
+            termPreview.execCommand(tool, args, true);
+        },2000);
     }
 
     /* 启动程序 */

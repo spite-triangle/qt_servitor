@@ -2,6 +2,13 @@
 
 All notable changes to the "triangle" extension will be documented in this file.
 
+## [0.5.1] 2025-04-10 23:12:58
+## 修改
+- `qmlpreview.exe` 为目标程序增加一个终端，方便打印调试信息
+
+## 修复
+- 修复 `sdk` 版本会变空问题
+
 ## [0.5.0] 2025-03-23 18:59:49
 ## 修复
 - 修身版本切换异常问题
